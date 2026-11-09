@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERP - Comercial Aurora Ltda.</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  :root{
+    --primary:#1e40af; --primary-dark:#1e3a8a; --primary-light:#3b82f6;
+    --bg:#f3f4f6; --surface:#ffffff; --text:#111827; --muted:#6b7280;
+    --border:#e5e7eb; --success:#10b981; --danger:#ef4444; --warning:#f59e0b;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  button{font-family:inherit;cursor:pointer}
+  /* LOGIN */
+  .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);padding:20px}
+  .login-card{background:#fff;padding:40px;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:400px}
+  .login-card h1{font-size:22px;color:var(--primary-dark);margin-bottom:4px}
+  .login-card p.sub{color:var(--muted);margin-bottom:24px;font-size:13px}
+  .login-card label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#374151}
+  .login-card input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:14px}
+  .login-card input:focus{outline:2px solid var(--primary-light);border-color:transparent}
+  .login-card button{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:14px;transition:.2s}
+  .login-card button:hover{background:var(--primary-dark)}
+  .login-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.6}
+  /* APP LAYOUT */
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:240px;background:var(--primary-dark);color:#fff;flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{padding:20px 16px;font-size:16px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);letter-spacing:.3px}
+  .brand small{display:block;font-size:10px;font-weight:400;opacity:.7;margin-top:2px;letter-spacing:1px}
+  .nav{padding:8px 0;flex:1}
+  .nav-section{padding:14px 16px 6px;font-size:10px;text-transform:uppercase;letter-spacing:1.2px;opacity:.5;font-weight:600}
+  .nav-item{display:block;padding:10px 16px;color:rgba(255,255,255,.85);text-decoration:none;font-size:13px;transition:.15s;border-left:3px solid transparent;cursor:pointer;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;text-align:left;font-family:inherit}
+  .nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+  .nav-item.active{background:rgba(255,255,255,.12);color:#fff;border-left-color:#60a5fa;font-weight:600}
+  .main-wrapper{flex:1;display:flex;flex-direction:column;min-width:0}
+  .header{height:60px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:10}
+  .page-title{font-size:16px;font-weight:600;color:var(--text)}
+  .user-area{display:flex;align-items:center;gap:12px;font-size:13px}
+  .badge{background:var(--primary-light);color:#fff;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+  .btn-logout{background:transparent;border:1px solid var(--border);padding:6px 14px;border-radius:6px;font-size:12px;color:var(--text);transition:.15s}
+  .btn-logout:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+  .content{padding:24px;flex:1}
+  /* COMPONENTS */
+  .card{background:#fff;border-radius:10px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+  .card-title{font-size:15px;font-weight:600;margin-bottom:16px;color:var(--text);display:flex;align-items:center;justify-content:space-between}
+  .toolbar{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+  .toolbar input[type="text"],.toolbar input[type="date"],.toolbar select{padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;min-width:180px}
+  .toolbar input:focus,.toolbar select:focus{outline:2px solid var(--primary-light);border-color:transparent}
+  .btn{padding:8px 16px;border-radius:6px;font-size:13px;font-weight:600;border:none;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-dark)}
+  .btn-success{background:var(--success);color:#fff}
+  .btn-success:hover{filter:brightness(.9)}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-danger:hover{filter:brightness(.9)}
+  .btn-warning{background:var(--warning);color:#fff}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+  .btn-ghost:hover{background:var(--bg)}
+  .btn-sm{padding:4px 10px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 8px;border-bottom:2px solid var(--border);font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600}
+  td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tbody tr:hover{background:#f9fafb}
+  .empty{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:20px}
+  .kpi{background:#fff;padding:18px;border-radius:10px;box-shadow:var(--shadow);border-left:4px solid var(--primary)}
+  .kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .kpi-value{font-size:22px;font-weight:700;color:var(--text)}
+  .kpi.success{border-left-color:var(--success)}
+  .kpi.danger{border-left-color:var(--danger)}
+  .kpi.warning{border-left-color:var(--warning)}
+  .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+  .chart-box{background:#fff;padding:16px;border-radius:10px;box-shadow:var(--shadow);min-height:280px}
+  .chart-box h3{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .chart-box canvas{max-height:220px}
+  .alert-list{list-style:none}
+  .alert-list li{padding:10px 12px;background:#fef3c7;border-left:3px solid var(--warning);border-radius:4px;margin-bottom:8px;font-size:13px}
+  .alert-list li.danger{background:#fee2e2;border-left-color:var(--danger)}
+  .status{display:inline-block;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;text-transform:capitalize}
+  .status.aberto{background:#dbeafe;color:#1e40af}
+  .status.pago,.status.faturado,.status.recebido{background:#d1fae5;color:#065f46}
+  .status.vencido{background:#fee2e2;color:#991b1b}
+  .status.orcamento{background:#fef3c7;color:#92400e}
+  .status.pedido{background:#e0e7ff;color:#3730a3}
+  .status.cancelado{background:#f3f4f6;color:#6b7280}
+  .status.ativo{background:#d1fae5;color:#065f46}
+  .status.bloqueado{background:#fee2e2;color:#991b1b}
+  .pagination{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:12px;color:var(--muted)}
+  .pagination button{padding:4px 10px;border:1px solid var(--border);background:#fff;border-radius:4px;font-size:12px}
+  .pagination button:disabled{opacity:.4;cursor:not-allowed}
+  .pagination button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-grid.full{grid-template-columns:1fr}
+  .form-field{display:flex;flex-direction:column;gap:4px}
+  .form-field label{font-size:12px;font-weight:600;color:#374151}
+  .form-field input,.form-field select,.form-field textarea{padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit}
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus{outline:2px solid var(--primary-light);border-color:transparent}
+  .form-field small{font-size:11px;color:var(--muted)}
+  .swal2-input,.swal2-select,.swal2-textarea{font-size:13px!important}
+  .modal-items{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+  .modal-items th{padding:6px;font-size:10px}
+  .modal-items td{padding:4px}
+  .modal-items input,.modal-items select{width:100%;padding:5px;border:1px solid var(--border);border-radius:4px;font-size:12px}
+  .modal-items .subtotal-cell{text-align:right;font-weight:600}
+  .total-line{display:flex;justify-content:flex-end;gap:20px;padding:10px 0;font-size:14px;font-weight:600;border-top:1px solid var(--border);margin-top:8px}
+  .login-error{color:var(--danger);font-size:12px;margin-top:8px;text-align:center}
+  @media(max-width:768px){
+    .app{flex-direction:column}
+    .sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
+    .nav{display:none}
+    .nav.open{display:block;width:100%}
+    .chart-grid{grid-template-columns:1fr}
+    .form-grid{grid-template-columns:1fr}
+    .content{padding:16px}
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <h1>Comercial Aurora Ltda.</h1>
+    <p class="sub">ERP Didático — Ciclo completo da empresa</p>
+    <form id="login-form">
+      <label for="login-user">Usuário</label>
+      <input type="text" id="login-user" placeholder="ex.: admin" required autocomplete="username">
+      <label for="login-pass">Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" required autocomplete="current-password">
+      <button type="submit">Entrar</button>
+      <div id="login-error" class="login-error"></div>
+    </form>
+    <p class="login-hint">
+      <strong>Credenciais demo:</strong><br>
+      admin / admin123 &nbsp;·&nbsp; vendedor / vend123<br>
+      financeiro / fin123 &nbsp;·&nbsp; estoque / est123
+    </p>
+  </div>
+</div>
+
+<div id="app" class="app" style="display:none">
+  <aside class="sidebar">
+    <div class="brand">Comercial Aurora<small>ERP DIDÁTICO</small></div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <div class="main-wrapper">
+    <header class="header">
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="user-area">
+        <span id="user-name"></span>
+        <span class="badge" id="user-perfil"></span>
+        <button class="btn-logout" id="btn-logout">Sair</button>
+      </div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1. UTILITÁRIOS
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtMoney = v => 'R$ ' + Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate = iso => iso ? new Date(iso).toLocaleDateString('pt-BR') : '—';
+const fmtDateTime = iso => iso ? new Date(iso).toLocaleString('pt-BR') : '—';
+const toNum = v => Number(String(v==null?'0':v).replace(',','.')) || 0;
+const todayISO = () => new Date().toISOString();
+const uid = () => Math.random().toString(36).slice(2,9);
+
+function toast(icon, title){ Swal.fire({toast:true,position:'top-end',icon,title,showConfirmButton:false,timer:2600,timerProgressBar:true}); }
+function confirmDanger(title, text){
+  return Swal.fire({title,text,icon:'warning',showCancelButton:true,confirmButtonColor:'#ef4444',cancelButtonColor:'#6b7280',confirmButtonText:'Confirmar',cancelButtonText:'Cancelar'});
+}
+
+const validators = {
+  cpf(v){
+    v = String(v||'').replace(/\D/g,'');
+    if(v.length!==11 || /^(\d)\1{10}$/.test(v)) return false;
+    let s=0; for(let i=0;i<9;i++) s+=parseInt(v[i])*(10-i);
+    let d1=11-(s%11); if(d1>=10) d1=0;
+    if(parseInt(v[9])!==d1) return false;
+    s=0; for(let i=0;i<10;i++) s+=parseInt(v[i])*(11-i);
+    let d2=11-(s%11); if(d2>=10) d2=0;
+    return parseInt(v[10])===d2;
+  },
+  cnpj(v){
+    v = String(v||'').replace(/\D/g,'');
+    if(v.length!==14 || /^(\d)\1{13}$/.test(v)) return false;
+    const calc=(base,w)=>{let s=0;for(let i=0;i<base.length;i++)s+=parseInt(base[i])*w[i];const r=s%11;return r<2?0:11-r;};
+    const d1=calc(v.slice(0,12),[5,4,3,2,9,8,7,6,5,4,3,2]);
+    if(d1!==parseInt(v[12])) return false;
+    const d2=calc(v.slice(0,13),[6,5,4,3,2,9,8,7,6,5,4,3,2]);
+    return d2===parseInt(v[13]);
+  },
+  email(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v||''); }
+};
+
+/* ============================================================
+   2. CAMADA DE DADOS
+   ============================================================ */
+const DB_KEYS = {
+  CONFIG:'erp_config', SEQUENCES:'erp_sequences',
+  USUARIOS:'erp_usuarios', CLIENTES:'erp_clientes',
+  FORNECEDORES:'erp_fornecedores', CATEGORIAS:'erp_categorias',
+  PRODUTOS:'erp_produtos', MOV_ESTOQUE:'erp_mov_estoque',
+  PEDIDOS_VENDA:'erp_pedidos_venda', PEDIDOS_COMPRA:'erp_pedidos_compra',
+  CONTAS_PAGAR:'erp_contas_pagar', CONTAS_RECEBER:'erp_contas_receber',
+  PLANO_CONTAS:'erp_plano_contas', CAIXA_MOV:'erp_caixa_mov',
+  LOGS:'erp_logs'
+};
+
+const db = {
+  _cache:{},
+  _read(key){
+    if(this._cache[key]!==undefined) return this._cache[key];
+    try{ const raw=localStorage.getItem(key); const d=raw?JSON.parse(raw):null; this._cache[key]=d; return d; }
+    catch(e){ return null; }
+  },
+  _write(key,val){
+    this._cache[key]=val;
+    try{ localStorage.setItem(key, JSON.stringify(val)); }
+    catch(e){ throw new Error('Falha ao gravar em localStorage (limite excedido?)'); }
+  },
+  _allRaw(key){ return this._read(key) || []; },
+  getAll(key){ return this._allRaw(key).filter(r=>!r.excluido); },
+  getAllWithDeleted(key){ return this._allRaw(key); },
+  getById(key,id){
+    const all = this._allRaw(key);
+    return all.find(r=>r.id===Number(id));
+  },
+  nextId(key){
+    const seq = this._read(DB_KEYS.SEQUENCES) || {};
+    seq[key] = (seq[key]||0) + 1;
+    this._write(DB_KEYS.SEQUENCES, seq);
+    return seq[key];
+  },
+  insert(key,obj){
+    const list = this._allRaw(key).slice();
+    const id = obj.id || this.nextId(key);
+    const now = todayISO();
+    const u = auth.currentUser();
+    const rec = Object.assign({},obj,{
+      id,
+      criado_em: now, criado_por: u?u.id:null,
+      atualizado_em: now, atualizado_por: u?u.id:null,
+      excluido:false
+    });
+    list.push(rec);
+    this._write(key,list);
+    this.log('create',key,id,null,rec);
+    return rec;
+  },
+  update(key,id,patch){
+    const list = this._allRaw(key).slice();
+    const idx = list.findIndex(r=>r.id===Number(id));
+    if(idx<0) throw new Error('Registro não encontrado');
+    const before = JSON.parse(JSON.stringify(list[idx]));
+    const u = auth.currentUser();
+    list[idx] = Object.assign({},list[idx],patch,{
+      atualizado_em: todayISO(), atualizado_por: u?u.id:null
+    });
+    this._write(key,list);
+    this.log('update',key,id,before,list[idx]);
+    return list[idx];
+  },
+  softDelete(key,id){
+    return this.update(key,id,{excluido:true});
+  },
+  log(acao,entidade,entidade_id,dados_antes,dados_depois){
+    const logs = this._allRaw(DB_KEYS.LOGS).slice();
+    const u = auth.currentUser();
+    const id = this.nextId(DB_KEYS.LOGS);
+    logs.push({
+      id, timestamp: todayISO(),
+      usuario_id: u?u.id:null, usuario_nome: u?u.nome:'sistema',
+      acao, entidade, entidade_id,
+      dados_antes: dados_antes||null, dados_depois: dados_depois||null
+    });
+    // grava direto sem recursão
+    this._write(DB_KEYS.LOGS, logs);
+  },
+  snapshot(){
+    const s={};
+    Object.values(DB_KEYS).forEach(k=>s[k]=localStorage.getItem(k));
+    return s;
+  },
+  restore(snap){
+    Object.entries(snap).forEach(([k,v])=>{
+      if(v===null) localStorage.removeItem(k);
+      else localStorage.setItem(k,v);
+    });
+    this._cache={};
+  },
+  transaction(fn){
+    const snap = this.snapshot();
+    try{ return fn(); }
+    catch(e){ this.restore(snap); throw e; }
+  },
+  exportAll(){
+    const out = { _meta:{ exportado_em: todayISO(), versao: '1.0' } };
+    Object.entries(DB_KEYS).forEach(([name,key])=>{ out[name]=this._read(key); });
+    return out;
+  },
+  importAll(json){
+    const data = typeof json==='string' ? JSON.parse(json) : json;
+    if(!data || typeof data!=='object') throw new Error('Arquivo inválido');
+    const obrigatorias = ['USUARIOS','CONFIG','SEQUENCES'];
+    for(const k of obrigatorias){ if(!(k in data)) throw new Error('Schema inválido: falta '+k); }
+    this._cache={};
+    Object.entries(DB_KEYS).forEach(([name,key])=>{
+      if(data[name]!==undefined && data[name]!==null){
+        this._write(key, data[name]);
+      }
+    });
+  },
+  reset(){
+    Object.values(DB_KEYS).forEach(k=>localStorage.removeItem(k));
+    localStorage.removeItem('erp_seeded');
+    this._cache={};
+  },
+  getConfig(){ return this._read(DB_KEYS.CONFIG) || {}; },
+  setConfig(cfg){ this._write(DB_KEYS.CONFIG,cfg); }
+};
+
+/* ============================================================
+   3. AUTENTICAÇÃO
+   ============================================================ */
+const auth = {
+  _sessionKey:'erp_session',
+  async hash(password){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  },
+  async login(usuario,senha){
+    const hash = await this.hash(senha);
+    const users = db.getAll(DB_KEYS.USUARIOS);
+    const u = users.find(x=>x.usuario===usuario && x.senha_hash===hash);
+    if(!u) return null;
+    if(u.situacao==='inativo') return null;
+    sessionStorage.setItem(this._sessionKey, JSON.stringify({usuario_id:u.id, ts:Date.now()}));
+    db.log('login',DB_KEYS.USUARIOS,u.id,null,{usuario:u.usuario});
+    return u;
+  },
+  currentUser(){
+    const raw = sessionStorage.getItem(this._sessionKey);
+    if(!raw) return null;
+    try{
+      const s = JSON.parse(raw);
+      const u = db.getById(DB_KEYS.USUARIOS,s.usuario_id);
+      return (u && !u.excluido) ? u : null;
+    }catch(e){ return null; }
+  },
+  logout(){
+    const u = this.currentUser();
+    if(u) db.log('logout',DB_KEYS.USUARIOS,u.id,{usuario:u.usuario},null);
+    sessionStorage.removeItem(this._sessionKey);
+  }
+};
+
+const PERMISSIONS = {
+  'Administrador':['dashboard','clientes','fornecedores','produtos','categorias','estoque','vendas','compras','contas-receber','contas-pagar','fluxo-caixa','relatorios','auditoria','config'],
+  'Vendedor':['dashboard','clientes','produtos','vendas','relatorios'],
+  'Financeiro':['dashboard','clientes','fornecedores','contas-receber','contas-pagar','fluxo-caixa','relatorios'],
+  'Estoque':['dashboard','produtos','fornecedores','categorias','estoque','compras']
+};
+function hasPerm(route){
+  const u = auth.currentUser();
+  if(!u) return false;
+  const list = PERMISSIONS[u.perfil] || [];
+  return list.includes(route);
+}
+
+/* ============================================================
+   4. SEED INICIAL
+   ============================================================ */
+async function seed(){
+  if(localStorage.getItem('erp_seeded')) return;
+  try{
+    // Config
+    db._write(DB_KEYS.CONFIG,{
+      empresa:{
+        razao_social:'Comercial Aurora Ltda.',
+        cnpj:'12.345.678/0001-90',
+        endereco:'Rua das Aurora, 100 — São Paulo/SP',
+        regime_tributario:'Simples Nacional'
+      },
+      parametros:{
+        bloquear_venda_sem_estoque:true,
+        desconto_maximo_percentual:10,
+        bloquear_cliente_inadimplente:false,
+        alerta_estoque_minimo:true
+      },
+      contas_bancarias:[
+        {id:1,nome:'Banco A — C/C',saldo_inicial:5000},
+        {id:2,nome:'Banco B — C/C',saldo_inicial:2000}
+      ]
+    });
+
+    // Usuarios
+    const creds = [
+      {usuario:'admin',nome:'Administrador',perfil:'Administrador',senha:'admin123'},
+      {usuario:'vendedor',nome:'Carlos Vendedor',perfil:'Vendedor',senha:'vend123'},
+      {usuario:'financeiro',nome:'Marina Financeiro',perfil:'Financeiro',senha:'fin123'},
+      {usuario:'estoque',nome:'Paulo Estoque',perfil:'Estoque',senha:'est123'}
+    ];
+    for(const c of creds){
+      const h = await auth.hash(c.senha);
+      db.insert(DB_KEYS.USUARIOS,{usuario:c.usuario,nome:c.nome,perfil:c.perfil,senha_hash:h,situacao:'ativo'});
+    }
+
+    // Categorias
+    const catNames = ['Informática','Acessórios','Áudio','Periféricos','Cabos'];
+    const cats = catNames.map(n=>db.insert(DB_KEYS.CATEGORIAS,{nome:n,descricao:'Categoria '+n}));
+
+    // Produtos
+    const produtosSeed = [
+      {sku:'INF-001',descricao:'Notebook Aurora i5',cat:0,un:'UN',ncm:'8471.30.19',custo:2500,venda:3499,estq:10,min:3},
+      {sku:'INF-002',descricao:'Monitor LED 24"',cat:0,un:'UN',ncm:'8528.52.20',custo:600,venda:899,estq:15,min:5},
+      {sku:'INF-003',descricao:'Teclado Mecânico RGB',cat:3,un:'UN',ncm:'8471.60.52',custo:120,venda:249,estq:25,min:10},
+      {sku:'INF-004',descricao:'Mouse Óptico Sem Fio',cat:3,un:'UN',ncm:'8471.60.53',custo:35,venda:79,estq:40,min:15},
+      {sku:'ACE-001',descricao:'Mochila Notebook 15"',cat:1,un:'UN',ncm:'4202.92.00',custo:80,venda:169,estq:20,min:8},
+      {sku:'AUD-001',descricao:'Headset Bluetooth',cat:2,un:'UN',ncm:'8518.30.00',custo:150,venda:299,estq:12,min:5},
+      {sku:'AUD-002',descricao:'Caixa de Som Portátil',cat:2,un:'UN',ncm:'8518.22.00',custo:180,venda:349,estq:8,min:4},
+      {sku:'CAB-001',descricao:'Cabo HDMI 2m',cat:4,un:'UN',ncm:'8544.42.00',custo:15,venda:39,estq:60,min:20},
+      {sku:'CAB-002',descricao:'Cabo USB-C 1m',cat:4,un:'UN',ncm:'8544.42.00',custo:12,venda:29,estq:50,min:20},
+      {sku:'ACE-002',descricao:'Webcam Full HD',cat:1,un:'UN',ncm:'8525.89.19',custo:100,venda:229,estq:14,min:5}
+    ];
+    const prods = produtosSeed.map(p=>db.insert(DB_KEYS.PRODUTOS,{
+      sku:p.sku,descricao:p.descricao,categoria_id:cats[p.cat].id,unidade:p.un,
+      ncm:p.ncm,preco_custo:p.custo,preco_venda:p.venda,
+      estoque_atual:p.estq,estoque_minimo:p.min,situacao:'ativo'
+    }));
+
+    // Movimentações iniciais de estoque
+    for(const p of prods){
+      db.insert(DB_KEYS.MOV_ESTOQUE,{
+        produto_id:p.id,tipo:'entrada',quantidade:p.estoque_atual,
+        custo_unitario:p.preco_custo,documento_tipo:'ajuste',documento_id:null,
+        observacao:'Estoque inicial (seed)',data:todayISO(),usuario_id:null
+      });
+    }
+
+    // Clientes
+    const clientesSeed = [
+      {tipo:'PJ',nome:'Distribuidora Silva LTDA',cpf_cnpj:'11.222.333/0001-81',email:'contato@silva.com',tel:'(11) 3333-1111',cidade:'São Paulo',uf:'SP',cred:50000},
+      {tipo:'PJ',nome:'Mega Store Comércio S/A',cpf_cnpj:'22.333.444/0001-72',email:'compras@megastore.com',tel:'(11) 3333-2222',cidade:'Rio de Janeiro',uf:'RJ',cred:30000},
+      {tipo:'PJ',nome:'TechShop Eletrônicos ME',cpf_cnpj:'33.444.555/0001-63',email:'vendas@techshop.com',tel:'(11) 3333-3333',cidade:'Belo Horizonte',uf:'MG',cred:20000},
+      {tipo:'PF',nome:'João da Silva',cpf_cnpj:'529.982.247-25',email:'joao@email.com',tel:'(11) 99999-1111',cidade:'São Paulo',uf:'SP',cred:5000},
+      {tipo:'PF',nome:'Maria Oliveira',cpf_cnpj:'111.444.777-35',email:'maria@email.com',tel:'(11) 99999-2222',cidade:'Campinas',uf:'SP',cred:3000}
+    ];
+    for(const c of clientesSeed){
+      db.insert(DB_KEYS.CLIENTES,{
+        tipo:c.tipo,nome:c.nome,cpf_cnpj:c.cpf_cnpj,email:c.email,telefone:c.tel,
+        endereco:{logradouro:'Rua Exemplo, 100',numero:'100',cidade:c.cidade,uf:c.uf,cep:'01000-000'},
+        limite_credito:c.cred,situacao:'ativo'
+      });
+    }
+
+    // Fornecedores
+    const fornSeed = [
+      {cnpj:'44.555.666/0001-54',razao:'Fabricante Tech Brasil LTDA',fantasia:'TechBrasil',email:'compras@techbrasil.com',prazo:15},
+      {cnpj:'55.666.777/0001-45',razao:'Importadora Digital S/A',fantasia:'DigitalImp',email:'sac@digitalimp.com',prazo:30},
+      {cnpj:'66.777.888/0001-36',razao:'Acessórios ABC LTDA',fantasia:'ABC Acessórios',email:'vendas@abc.com',prazo:7}
+    ];
+    for(const f of fornSeed){
+      db.insert(DB_KEYS.FORNECEDORES,{
+        cnpj:f.cnpj,razao_social:f.razao,nome_fantasia:f.fantasia,email:f.email,
+        telefone:'(11) 4000-1000',
+        endereco:{logradouro:'Av. Industrial, 500',numero:'500',cidade:'São Paulo',uf:'SP',cep:'02000-000'},
+        prazo_entrega_dias:f.prazo,situacao:'ativo'
+      });
+    }
+
+    // Plano de Contas
+    const plano = [
+      {codigo:'1',nome:'Ativo',tipo:'Ativo'},
+      {codigo:'1.1',nome:'Caixa e Bancos',tipo:'Ativo'},
+      {codigo:'1.1.1',nome:'Caixa',tipo:'Ativo'},
+      {codigo:'1.1.2',nome:'Bancos',tipo:'Ativo'},
+      {codigo:'2',nome:'Passivo',tipo:'Passivo'},
+      {codigo:'2.1',nome:'Fornecedores',tipo:'Passivo'},
+      {codigo:'3',nome:'Receita',tipo:'Receita'},
+      {codigo:'3.1',nome:'Receita de Vendas',tipo:'Receita'},
+      {codigo:'4',nome:'Despesa',tipo:'Despesa'},
+      {codigo:'4.1',nome:'Despesas Operacionais',tipo:'Despesa'},
+      {codigo:'4.1.1',nome:'Aluguel',tipo:'Despesa'},
+      {codigo:'4.1.2',nome:'Energia',tipo:'Despesa'},
+      {codigo:'4.1.3',nome:'Salários',tipo:'Despesa'}
+    ];
+    plano.forEach(p=>db.insert(DB_KEYS.PLANO_CONTAS,p));
+
+    // Demo: uma venda faturada para popular dashboard
+    try{
+      const cli = db.getAll(DB_KEYS.CLIENTES)[0];
+      const prod = prods[0];
+      const vend = db.getAll(DB_KEYS.USUARIOS).find(u=>u.perfil==='Vendedor');
+      const itens = [{produto_id:prod.id,quantidade:2,preco_unitario:prod.preco_venda,desconto:0,subtotal:prod.preco_venda*2}];
+      const total = itens.reduce((s,i)=>s+i.subtotal,0);
+      const ped = db.insert(DB_KEYS.PEDIDOS_VENDA,{
+        numero:'V-'+Date.now().toString().slice(-6),
+        cliente_id:cli.id,vendedor_id:vend.id,data_emissao:todayISO(),
+        status:'faturado',itens,subtotal:total,desconto_total:0,total,
+        observacoes:'Venda de demonstração',data_faturamento:todayISO()
+      });
+      db.insert(DB_KEYS.MOV_ESTOQUE,{
+        produto_id:prod.id,tipo:'saida',quantidade:2,custo_unitario:prod.preco_custo,
+        documento_tipo:'venda',documento_id:ped.id,observacao:'Venda demo',
+        data:todayISO(),usuario_id:vend.id
+      });
+      db.update(DB_KEYS.PRODUTOS,prod.id,{estoque_atual:prod.estoque_atual-2});
+      const cr = db.insert(DB_KEYS.CONTAS_RECEBER,{
+        numero:'CR-'+Date.now().toString().slice(-6),
+        cliente_id:cli.id,descricao:'Venda '+ped.numero,
+        origem_tipo:'venda',origem_id:ped.id,parcela:'1/1',
+        valor:total,vencimento:new Date(Date.now()+30*86400000).toISOString(),
+        status:'aberto',data_pagamento:null,forma_pagamento:null
+      });
+      db.update(DB_KEYS.PEDIDOS_VENDA,ped.id,{conta_receber_id:cr.id});
+    }catch(e){ console.warn('Seed demo venda falhou:',e); }
+
+    localStorage.setItem('erp_seeded','1');
+    console.log('✅ Seed concluído');
+  }catch(e){
+    console.error('Erro no seed:',e);
+    throw e;
+  }
+}
+
+/* ============================================================
+   5. VIEWS — helpers de UI
+   ============================================================ */
+const tableState = {};
+function getState(name){ if(!tableState[name]) tableState[name]={search:'',page:1,perPage:10}; return tableState[name]; }
+
+function renderPagination(name, total, perPage){
+  const s = getState(name);
+  const pages = Math.max(1, Math.ceil(total/perPage));
+  if(s.page>pages) s.page = pages;
+  if(pages<=1) return '';
+  let html = `<div class="pagination">`;
+  html += `<button ${s.page===1?'disabled':''} onclick="setPage('${name}',${s.page-1})">‹</button>`;
+  const start = Math.max(1, s.page-2), end = Math.min(pages, s.page+2);
+  for(let i=start;i<=end;i++){
+    html += `<button class="${i===s.page?'active':''}" onclick="setPage('${name}',${i})">${i}</button>`;
+  }
+  html += `<button ${s.page===pages?'disabled':''} onclick="setPage('${name}',${s.page+1})">›</button>`;
+  html += `<span style="margin-left:10px">${total} registro(s)</span></div>`;
+  return html;
+}
+window.setPage = (name,page)=>{
+  getState(name).page = page;
+  const f = window['_rerender_'+name];
+  if(f) f();
+};
+
+/* ============================================================
+   6. VIEW: DASHBOARD
+   ============================================================ */
+function renderDashboard(){
+  const cfg = db.getConfig();
+  const now = new Date();
+  const mesIni = new Date(now.getFullYear(),now.getMonth(),1).toISOString();
+  const mesFim = new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59).toISOString();
+  const pedidos = db.getAll(DB_KEYS.PEDIDOS_VENDA).filter(p=>p.status==='faturado');
+  const mesFat = pedidos.filter(p=>p.data_faturamento>=mesIni && p.data_faturamento<=mesFim);
+  const faturamentoMes = mesFat.reduce((s,p)=>s+p.total,0);
+  const ticket = mesFat.length? faturamentoMes/mesFat.length : 0;
+  const cr = db.getAll(DB_KEYS.CONTAS_RECEBER);
+  const vencidas = cr.filter(c=>c.status==='aberto' && new Date(c.vencimento)<now);
+  const inadimplencia = cr.filter(c=>c.status==='vencido'||vencidas.includes(c)).reduce((s,c)=>s+c.valor,0);
+  const prods = db.getAll(DB_KEYS.PRODUTOS).filter(p=>p.situacao!=='inativo');
+  const emFalta = prods.filter(p=>p.estoque_atual<=p.estoque_minimo);
+
+  let html = `<div class="kpi-grid">
+    <div class="kpi"><div class="kpi-label">Faturamento do Mês</div><div class="kpi-value">${fmtMoney(faturamentoMes)}</div></div>
+    <div class="kpi success"><div class="kpi-label">Ticket Médio</div><div class="kpi-value">${fmtMoney(ticket)}</div></div>
+    <div class="kpi danger"><div class="kpi-label">Inadimplência</div><div class="kpi-value">${fmtMoney(inadimplencia)}</div></div>
+    <div class="kpi warning"><div class="kpi-label">Produtos em Falta</div><div class="kpi-value">${emFalta.length}</div></div>
+  </div>`;
+
+  html += `<div class="chart-grid">
+    <div class="chart-box"><h3>Vendas Mensais (R$)</h3><canvas id="chart-vendas"></canvas></div>
+    <div class="chart-box"><h3>Top 5 Produtos</h3><canvas id="chart-top"></canvas></div>
+  </div>`;
+
+  // Alertas
+  const alertas = [];
+  emFalta.forEach(p=>alertas.push({tipo:'danger',msg:`⚠ Estoque baixo: ${esc(p.descricao)} (saldo ${p.estoque_atual}, mínimo ${p.estoque_minimo})`}));
+  vencidas.forEach(c=>{
+    const cli = db.getById(DB_KEYS.CLIENTES,c.cliente_id);
+    alertas.push({tipo:'danger',msg:`💸 Título vencido: ${fmtMoney(c.valor)} — ${cli?esc(cli.nome):'—'} (venc. ${fmtDate(c.vencimento)})`});
+  });
+  const em7 = cr.filter(c=>{
+    const d = new Date(c.vencimento);
+    const diff = (d-now)/(1000*60*60*24);
+    return c.status==='aberto' && diff>=0 && diff<=7;
+  });
+  em7.forEach(c=>{
+    const cli = db.getById(DB_KEYS.CLIENTES,c.cliente_id);
+    alertas.push({tipo:'',msg:`📅 Vence em breve: ${fmtMoney(c.valor)} — ${cli?esc(cli.nome):'—'}`});
+  });
+
+  if(alertas.length){
+    html += `<div class="card"><div class="card-title">Central de Alertas</div><ul class="alert-list">`;
+    alertas.slice(0,10).forEach(a=>html+=`<li class="${a.tipo}">${a.msg}</li>`);
+    html += `</ul></div>`;
+  } else {
+    html += `<div class="card"><div class="card-title">Central de Alertas</div><div class="empty">Nenhum alerta. Tudo em ordem! ✅</div></div>`;
+  }
+
+  $('#content').innerHTML = html;
+  $('#page-title').textContent = 'Dashboard';
+
+  // Charts
+  setTimeout(()=>{
+    // Vendas mensais (últimos 6 meses)
+    const labels=[], dataVendas=[];
+    for(let i=5;i>=0;i--){
+      const d = new Date(now.getFullYear(),now.getMonth()-i,1);
+      const ini = new Date(d.getFullYear(),d.getMonth(),1).toISOString();
+      const fim = new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59).toISOString();
+      labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+      dataVendas.push(pedidos.filter(p=>p.data_faturamento>=ini&&p.data_faturamento<=fim).reduce((s,p)=>s+p.total,0));
+    }
+    if(window._chartVendas) window._chartVendas.destroy();
+    window._chartVendas = new Chart($('#chart-vendas'),{
+      type:'bar',
+      data:{labels,datasets:[{label:'R$',data:dataVendas,backgroundColor:'#3b82f6'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
+    });
+
+    // Top 5
+    const map={};
+    pedidos.forEach(p=>p.itens.forEach(i=>{map[i.produto_id]=(map[i.produto_id]||0)+i.subtotal;}));
+    const top = Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(window._chartTop) window._chartTop.destroy();
+    window._chartTop = new Chart($('#chart-top'),{
+      type:'doughnut',
+      data:{
+        labels:top.map(([id])=>{const p=db.getById(DB_KEYS.PRODUTOS,id);return p?p.descricao:'—';}),
+        datasets:[{data:top.map(([,v])=>v),backgroundColor:['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6']}]
+      },
+      options:{responsive:true,maintainAspectRatio:false}
+    });
+  },50);
+}
+
+/* ============================================================
+   7. VIEW: CLIENTES
+   ============================================================ */
+function renderClientes(){
+  const s = getState('clientes');
+  let list = db.getAll(DB_KEYS.CLIENTES);
+  if(s.search){
+    const q = s.search.toLowerCase();
+    list = list.filter(c=>c.nome.toLowerCase().includes(q)||c.cpf_cnpj.includes(q)||(c.email||'').toLowerCase().includes(q));
+  }
+  const perPage = s.perPage;
+  const total = list.length;
+  const pages = Math.max(1, Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows = list.slice((s.page-1)*perPage, s.page*perPage);
+
+  let html = `<div class="card">
+    <div class="card-title">Clientes <button class="btn btn-primary" onclick="openClienteModal()">+ Novo Cliente</button></div>
+    <div class="toolbar">
+      <input type="text" placeholder="🔍 Buscar por nome, CPF/CNPJ, e-mail..." value="${esc(s.search)}" oninput="getState('clientes').search=this.value; getState('clientes').page=1; renderClientes()">
+    </div>
+    <table><thead><tr><th>ID</th><th>Nome / Razão</th><th>CPF/CNPJ</th><th>Tipo</th><th>E-mail</th><th>Limite</th><th>Situação</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length){ html += `<tr><td colspan="8" class="empty">Nenhum cliente encontrado</td></tr>`; }
+  else rows.forEach(c=>{
+    html += `<tr>
+      <td>${c.id}</td>
+      <td>${esc(c.nome)}</td>
+      <td>${esc(c.cpf_cnpj)}</td>
+      <td>${c.tipo}</td>
+      <td>${esc(c.email||'')}</td>
+      <td>${fmtMoney(c.limite_credito)}</td>
+      <td><span class="status ${c.situacao}">${c.situacao}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openClienteModal(${c.id})">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCliente(${c.id})">Excluir</button>
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table>${renderPagination('clientes',total,perPage)}</div>`;
+  $('#content').innerHTML = html;
+  $('#page-title').textContent = 'Clientes';
+  window._rerender_clientes = renderClientes;
+}
+
+window.openClienteModal = function(id){
+  const c = id ? db.getById(DB_KEYS.CLIENTES,id) : {tipo:'PF',endereco:{},situacao:'ativo',limite_credito:0};
+  const isEdit = !!id;
+  const sw = Swal.fire({
+    title: isEdit?'Editar Cliente':'Novo Cliente',
+    width: 720,
+    html: `
+      <div class="form-grid">
+        <div class="form-field"><label>Tipo *</label>
+          <select id="cli-tipo"><option value="PF" ${c.tipo==='PF'?'selected':''}>Pessoa Física</option><option value="PJ" ${c.tipo==='PJ'?'selected':''}>Pessoa Jurídica</option></select>
+        </div>
+        <div class="form-field"><label>Nome / Razão Social *</label><input id="cli-nome" value="${esc(c.nome||'')}"></div>
+        <div class="form-field"><label>CPF / CNPJ *</label><input id="cli-cpf" value="${esc(c.cpf_cnpj||'')}" placeholder="000.000.000-00 ou 00.000.000/0000-00"></div>
+        <div class="form-field"><label>E-mail</label><input id="cli-email" type="email" value="${esc(c.email||'')}"></div>
+        <div class="form-field"><label>Telefone</label><input id="cli-tel" value="${esc(c.telefone||'')}"></div>
+        <div class="form-field"><label>Limite de Crédito (R$)</label><input id="cli-limite" type="number" step="0.01" value="${c.limite_credito||0}"></div>
+        <div class="form-field"><label>Cidade</label><input id="cli-cidade" value="${esc(c.endereco?.cidade||'')}"></div>
+        <div class="form-field"><label>UF</label><input id="cli-uf" maxlength="2" value="${esc(c.endereco?.uf||'')}"></div>
+        <div class="form-field"><label>Logradouro</label><input id="cli-log" value="${esc(c.endereco?.logradouro||'')}"></div>
+        <div class="form-field"><label>Número</label><input id="cli-num" value="${esc(c.endereco?.numero||'')}"></div>
+        <div class="form-field"><label>CEP</label><input id="cli-cep" value="${esc(c.endereco?.cep||'')}"></div>
+        <div class="form-field"><label>Situação</label>
+          <select id="cli-sit"><option value="ativo" ${c.situacao==='ativo'?'selected':''}>Ativo</option><option value="bloqueado" ${c.situacao==='bloqueado'?'selected':''}>Bloqueado</option></select>
+        </div>
+      </div>`,
+    showCancelButton:true,
+    confirmButtonText:'Salvar',
+    cancelButtonText:'Cancelar',
+    focusConfirm:false,
+    preConfirm:()=>{
+      const tipo = $('#cli-tipo').value;
+      const nome = $('#cli-nome').value.trim();
+      const cpf = $('#cli-cpf').value.trim();
+      const email = $('#cli-email').value.trim();
+      if(!nome) return Swal.showValidationMessage('Informe o nome');
+      if(!cpf) return Swal.showValidationMessage('Informe CPF/CNPJ');
+      if(tipo==='PF' && !validators.cpf(cpf)) return Swal.showValidationMessage('CPF inválido');
+      if(tipo==='PJ' && !validators.cnpj(cpf)) return Swal.showValidationMessage('CNPJ inválido');
+      if(email && !validators.email(email)) return Swal.showValidationMessage('E-mail inválido');
+      return {
+        tipo, nome, cpf_cnpj: cpf, email, telefone: $('#cli-tel').value.trim(),
+        endereco:{
+          logradouro:$('#cli-log').value.trim(), numero:$('#cli-num').value.trim(),
+          cidade:$('#cli-cidade').value.trim(), uf:$('#cli-uf').value.trim().toUpperCase(),
+          cep:$('#cli-cep').value.trim()
+        },
+        limite_credito: toNum($('#cli-limite').value),
+        situacao: $('#cli-sit').value
+      };
+    }
+  });
+  sw.then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      if(isEdit) db.update(DB_KEYS.CLIENTES,id,r.value);
+      else db.insert(DB_KEYS.CLIENTES,r.value);
+      toast('success', isEdit?'Cliente atualizado':'Cliente cadastrado');
+      renderClientes();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+window.deleteCliente = function(id){
+  const temPedidos = db.getAll(DB_KEYS.PEDIDOS_VENDA).some(p=>p.cliente_id===id);
+  confirmDanger('Excluir cliente?', temPedidos?'Este cliente possui pedidos. Será aplicado soft delete (inativação).':'Deseja realmente excluir?').then(r=>{
+    if(!r.isConfirmed) return;
+    db.softDelete(DB_KEYS.CLIENTES,id);
+    toast('success','Cliente excluído');
+    renderClientes();
+  });
+};
+
+/* ============================================================
+   8. VIEW: FORNECEDORES
+   ============================================================ */
+function renderFornecedores(){
+  const s = getState('fornecedores');
+  let list = db.getAll(DB_KEYS.FORNECEDORES);
+  if(s.search){
+    const q = s.search.toLowerCase();
+    list = list.filter(f=>f.razao_social.toLowerCase().includes(q)||(f.cnpj||'').includes(q));
+  }
+  const perPage=s.perPage;
+  const total=list.length;
+  const pages=Math.max(1,Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows=list.slice((s.page-1)*perPage,s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Fornecedores <button class="btn btn-primary" onclick="openFornecedorModal()">+ Novo Fornecedor</button></div>
+    <div class="toolbar">
+      <input type="text" placeholder="🔍 Buscar..." value="${esc(s.search)}" oninput="getState('fornecedores').search=this.value;getState('fornecedores').page=1;renderFornecedores()">
+    </div>
+    <table><thead><tr><th>ID</th><th>Razão Social</th><th>CNPJ</th><th>E-mail</th><th>Prazo (dias)</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="6" class="empty">Nenhum fornecedor</td></tr>`;
+  else rows.forEach(f=>{
+    html+=`<tr><td>${f.id}</td><td>${esc(f.razao_social)}</td><td>${esc(f.cnpj)}</td><td>${esc(f.email||'')}</td><td>${f.prazo_entrega_dias||0}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openFornecedorModal(${f.id})">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteFornecedor(${f.id})">Excluir</button></td></tr>`;
+  });
+  html+=`</tbody></table>${renderPagination('fornecedores',total,perPage)}</div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Fornecedores';
+  window._rerender_fornecedores = renderFornecedores;
+}
+
+window.openFornecedorModal = function(id){
+  const f = id?db.getById(DB_KEYS.FORNECEDORES,id):{endereco:{},prazo_entrega_dias:15};
+  const isEdit=!!id;
+  Swal.fire({
+    title:isEdit?'Editar Fornecedor':'Novo Fornecedor',width:720,
+    html:`
+      <div class="form-grid">
+        <div class="form-field"><label>Razão Social *</label><input id="f-razao" value="${esc(f.razao_social||'')}"></div>
+        <div class="form-field"><label>Nome Fantasia</label><input id="f-fant" value="${esc(f.nome_fantasia||'')}"></div>
+        <div class="form-field"><label>CNPJ *</label><input id="f-cnpj" value="${esc(f.cnpj||'')}"></div>
+        <div class="form-field"><label>E-mail</label><input id="f-email" type="email" value="${esc(f.email||'')}"></div>
+        <div class="form-field"><label>Telefone</label><input id="f-tel" value="${esc(f.telefone||'')}"></div>
+        <div class="form-field"><label>Prazo de Entrega (dias)</label><input id="f-prazo" type="number" value="${f.prazo_entrega_dias||0}"></div>
+        <div class="form-field"><label>Cidade</label><input id="f-cidade" value="${esc(f.endereco?.cidade||'')}"></div>
+        <div class="form-field"><label>UF</label><input id="f-uf" maxlength="2" value="${esc(f.endereco?.uf||'')}"></div>
+      </div>`,
+    showCancelButton:true,confirmButtonText:'Salvar',cancelButtonText:'Cancelar',focusConfirm:false,
+    preConfirm:()=>{
+      const razao=$('#f-razao').value.trim();
+      const cnpj=$('#f-cnpj').value.trim();
+      const email=$('#f-email').value.trim();
+      if(!razao) return Swal.showValidationMessage('Informe a razão social');
+      if(!cnpj||!validators.cnpj(cnpj)) return Swal.showValidationMessage('CNPJ inválido');
+      if(email && !validators.email(email)) return Swal.showValidationMessage('E-mail inválido');
+      return {
+        razao_social:razao,nome_fantasia:$('#f-fant').value.trim(),cnpj,
+        email,telefone:$('#f-tel').value.trim(),
+        prazo_entrega_dias:Number($('#f-prazo').value)||0,
+        endereco:{cidade:$('#f-cidade').value.trim(),uf:$('#f-uf').value.trim().toUpperCase()},
+        situacao:'ativo'
+      };
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      if(isEdit) db.update(DB_KEYS.FORNECEDORES,id,r.value);
+      else db.insert(DB_KEYS.FORNECEDORES,r.value);
+      toast('success','Fornecedor salvo');
+      renderFornecedores();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+window.deleteFornecedor = function(id){
+  confirmDanger('Excluir fornecedor?','Deseja realmente excluir?').then(r=>{
+    if(!r.isConfirmed) return;
+    db.softDelete(DB_KEYS.FORNECEDORES,id);
+    toast('success','Fornecedor excluído');
+    renderFornecedores();
+  });
+};
+
+/* ============================================================
+   9. VIEW: CATEGORIAS
+   ============================================================ */
+function renderCategorias(){
+  const s = getState('categorias');
+  let list = db.getAll(DB_KEYS.CATEGORIAS);
+  if(s.search){ const q=s.search.toLowerCase(); list=list.filter(c=>c.nome.toLowerCase().includes(q)); }
+  const perPage=s.perPage, total=list.length;
+  const pages=Math.max(1,Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows=list.slice((s.page-1)*perPage,s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Categorias <button class="btn btn-primary" onclick="openCategoriaModal()">+ Nova Categoria</button></div>
+    <div class="toolbar"><input type="text" placeholder="🔍 Buscar..." value="${esc(s.search)}" oninput="getState('categorias').search=this.value;getState('categorias').page=1;renderCategorias()"></div>
+    <table><thead><tr><th>ID</th><th>Nome</th><th>Descrição</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="4" class="empty">Nenhuma categoria</td></tr>`;
+  else rows.forEach(c=>{
+    html+=`<tr><td>${c.id}</td><td>${esc(c.nome)}</td><td>${esc(c.descricao||'')}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openCategoriaModal(${c.id})">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteCategoria(${c.id})">Excluir</button></td></tr>`;
+  });
+  html+=`</tbody></table>${renderPagination('categorias',total,perPage)}</div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Categorias';
+  window._rerender_categorias = renderCategorias;
+}
+window.openCategoriaModal = function(id){
+  const c = id?db.getById(DB_KEYS.CATEGORIAS,id):{};
+  const isEdit=!!id;
+  Swal.fire({
+    title:isEdit?'Editar Categoria':'Nova Categoria',
+    html:`<div class="form-grid full">
+      <div class="form-field"><label>Nome *</label><input id="cat-nome" value="${esc(c.nome||'')}"></div>
+      <div class="form-field"><label>Descrição</label><textarea id="cat-desc" rows="2">${esc(c.descricao||'')}</textarea></div>
+    </div>`,
+    showCancelButton:true,confirmButtonText:'Salvar',cancelButtonText:'Cancelar',focusConfirm:false,
+    preConfirm:()=>{
+      const nome=$('#cat-nome').value.trim();
+      if(!nome) return Swal.showValidationMessage('Informe o nome');
+      return {nome,descricao:$('#cat-desc').value.trim()};
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      if(isEdit) db.update(DB_KEYS.CATEGORIAS,id,r.value);
+      else db.insert(DB_KEYS.CATEGORIAS,r.value);
+      toast('success','Categoria salva');
+      renderCategorias();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+window.deleteCategoria = function(id){
+  const emUso = db.getAll(DB_KEYS.PRODUTOS).some(p=>p.categoria_id===id);
+  if(emUso){ Swal.fire('Não permitido','Existem produtos vinculados a esta categoria.','warning'); return; }
+  confirmDanger('Excluir categoria?','Deseja realmente excluir?').then(r=>{
+    if(!r.isConfirmed) return;
+    db.softDelete(DB_KEYS.CATEGORIAS,id);
+    toast('success','Categoria excluída');
+    renderCategorias();
+  });
+};
+
+/* ============================================================
+   10. VIEW: PRODUTOS
+   ============================================================ */
+function renderProdutos(){
+  const s = getState('produtos');
+  let list = db.getAll(DB_KEYS.PRODUTOS);
+  if(s.search){
+    const q=s.search.toLowerCase();
+    list=list.filter(p=>p.descricao.toLowerCase().includes(q)||p.sku.toLowerCase().includes(q));
+  }
+  const perPage=s.perPage,total=list.length;
+  const pages=Math.max(1,Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows=list.slice((s.page-1)*perPage,s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Produtos <button class="btn btn-primary" onclick="openProdutoModal()">+ Novo Produto</button></div>
+    <div class="toolbar"><input type="text" placeholder="🔍 Buscar por SKU/descrição..." value="${esc(s.search)}" oninput="getState('produtos').search=this.value;getState('produtos').page=1;renderProdutos()"></div>
+    <table><thead><tr><th>SKU</th><th>Descrição</th><th>Categoria</th><th>Custo</th><th>Venda</th><th>Estoque</th><th>Mínimo</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="8" class="empty">Nenhum produto</td></tr>`;
+  else rows.forEach(p=>{
+    const cat = db.getById(DB_KEYS.CATEGORIAS,p.categoria_id);
+    const low = p.estoque_atual<=p.estoque_minimo;
+    html+=`<tr>
+      <td>${esc(p.sku)}</td>
+      <td>${esc(p.descricao)}</td>
+      <td>${cat?esc(cat.nome):'—'}</td>
+      <td>${fmtMoney(p.preco_custo)}</td>
+      <td>${fmtMoney(p.preco_venda)}</td>
+      <td style="color:${low?'#ef4444':'inherit'};font-weight:${low?'700':'normal'}">${p.estoque_atual}</td>
+      <td>${p.estoque_minimo}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openProdutoModal(${p.id})">Editar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteProduto(${p.id})">Excluir</button></td>
+    </tr>`;
+  });
+  html+=`</tbody></table>${renderPagination('produtos',total,perPage)}</div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Produtos';
+  window._rerender_produtos = renderProdutos;
+}
+
+window.openProdutoModal = function(id){
+  const p = id?db.getById(DB_KEYS.PRODUTOS,id):{estoque_atual:0,estoque_minimo:0,situacao:'ativo',unidade:'UN'};
+  const cats = db.getAll(DB_KEYS.CATEGORIAS);
+  const isEdit=!!id;
+  const optsCat = cats.map(c=>`<option value="${c.id}" ${p.categoria_id===c.id?'selected':''}>${esc(c.nome)}</option>`).join('');
+  Swal.fire({
+    title:isEdit?'Editar Produto':'Novo Produto',width:720,
+    html:`
+      <div class="form-grid">
+        <div class="form-field"><label>SKU *</label><input id="p-sku" value="${esc(p.sku||'')}"></div>
+        <div class="form-field"><label>Descrição *</label><input id="p-desc" value="${esc(p.descricao||'')}"></div>
+        <div class="form-field"><label>Categoria</label><select id="p-cat"><option value="">—</option>${optsCat}</select></div>
+        <div class="form-field"><label>Unidade</label><input id="p-un" value="${esc(p.unidade||'UN')}"></div>
+        <div class="form-field"><label>NCM</label><input id="p-ncm" value="${esc(p.ncm||'')}"></div>
+        <div class="form-field"><label>Preço de Custo (R$) *</label><input id="p-custo" type="number" step="0.01" value="${p.preco_custo||0}"></div>
+        <div class="form-field"><label>Preço de Venda (R$) *</label><input id="p-venda" type="number" step="0.01" value="${p.preco_venda||0}"></div>
+        <div class="form-field"><label>Estoque Atual</label><input id="p-estq" type="number" value="${p.estoque_atual||0}" ${isEdit?'readonly':''} title="${isEdit?'Altere via movimentação de estoque':''}"></div>
+        <div class="form-field"><label>Estoque Mínimo</label><input id="p-min" type="number" value="${p.estoque_minimo||0}"></div>
+        <div class="form-field"><label>Situação</label><select id="p-sit"><option value="ativo" ${p.situacao==='ativo'?'selected':''}>Ativo</option><option value="inativo" ${p.situacao==='inativo'?'selected':''}>Inativo</option></select></div>
+      </div>`,
+    showCancelButton:true,confirmButtonText:'Salvar',cancelButtonText:'Cancelar',focusConfirm:false,
+    preConfirm:()=>{
+      const sku=$('#p-sku').value.trim(), desc=$('#p-desc').value.trim();
+      const custo=toNum($('#p-custo').value), venda=toNum($('#p-venda').value);
+      if(!sku) return Swal.showValidationMessage('Informe o SKU');
+      if(!desc) return Swal.showValidationMessage('Informe a descrição');
+      if(venda<custo && !confirm('Preço de venda abaixo do custo — continuar?')) return false;
+      return {
+        sku,descricao:desc,
+        categoria_id:$('#p-cat').value?Number($('#p-cat').value):null,
+        unidade:$('#p-un').value.trim()||'UN',ncm:$('#p-ncm').value.trim(),
+        preco_custo:custo,preco_venda:venda,
+        estoque_atual: isEdit?p.estoque_atual:Number($('#p-estq').value)||0,
+        estoque_minimo:Number($('#p-min').value)||0,
+        situacao:$('#p-sit').value
+      };
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      if(isEdit) db.update(DB_KEYS.PRODUTOS,id,r.value);
+      else db.insert(DB_KEYS.PRODUTOS,r.value);
+      toast('success','Produto salvo');
+      renderProdutos();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+window.deleteProduto = function(id){
+  const temMov = db.getAll(DB_KEYS.MOV_ESTOQUE).some(m=>m.produto_id===id);
+  if(temMov){ confirmDanger('Inativar produto?','Produto possui movimentação de estoque — será aplicado soft delete.').then(r=>{ if(r.isConfirmed){ db.softDelete(DB_KEYS.PRODUTOS,id); toast('success','Produto inativado'); renderProdutos(); } }); }
+  else confirmDanger('Excluir produto?','Deseja realmente excluir?').then(r=>{ if(r.isConfirmed){ db.softDelete(DB_KEYS.PRODUTOS,id); toast('success','Produto excluído'); renderProdutos(); } });
+};
+
+/* ============================================================
+   11. VIEW: ESTOQUE
+   ============================================================ */
+function renderEstoque(){
+  const prods = db.getAll(DB_KEYS.PRODUTOS);
+  const movs = db.getAll(DB_KEYS.MOV_ESTOQUE).sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,50);
+
+  let html=`<div class="card">
+    <div class="card-title">Movimentações de Estoque
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-success" onclick="openMovEstoque('entrada')">+ Entrada</button>
+        <button class="btn btn-danger" onclick="openMovEstoque('saida')">− Saída</button>
+        <button class="btn btn-warning" onclick="openMovEstoque('ajuste')">⚖ Ajuste</button>
+      </div>
+    </div>
+    <table><thead><tr><th>ID</th><th>Data</th><th>Produto</th><th>Tipo</th><th>Qtd</th><th>Custo Un.</th><th>Documento</th><th>Observação</th></tr></thead><tbody>`;
+  if(!movs.length) html+=`<tr><td colspan="8" class="empty">Nenhuma movimentação</td></tr>`;
+  else movs.forEach(m=>{
+    const p = db.getById(DB_KEYS.PRODUTOS,m.produto_id);
+    html+=`<tr>
+      <td>${m.id}</td><td>${fmtDate(m.data)}</td>
+      <td>${p?esc(p.descricao):'—'}</td>
+      <td><span class="status ${m.tipo==='entrada'?'pago':m.tipo==='saida'?'vencido':'aberto'}">${m.tipo}</span></td>
+      <td>${m.quantidade}</td>
+      <td>${fmtMoney(m.custo_unitario)}</td>
+      <td>${m.documento_tipo}${m.documento_id?' #'+m.documento_id:''}</td>
+      <td>${esc(m.observacao||'')}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+
+  // Kardex selector
+  const opts = prods.map(p=>`<option value="${p.id}">${esc(p.descricao)}</option>`).join('');
+  html+=`<div class="card">
+    <div class="card-title">Kardex (Histórico por Produto)</div>
+    <div class="toolbar">
+      <select id="kardex-prod" onchange="renderKardex(this.value)">
+        <option value="">Selecione um produto...</option>${opts}
+      </select>
+    </div>
+    <div id="kardex-body"><div class="empty">Selecione um produto para visualizar o histórico</div></div>
+  </div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Estoque';
+}
+
+window.renderKardex = function(prodId){
+  if(!prodId){ $('#kardex-body').innerHTML=`<div class="empty">Selecione um produto</div>`; return; }
+  const movs = db.getAll(DB_KEYS.MOV_ESTOQUE).filter(m=>m.produto_id===Number(prodId)).sort((a,b)=>new Date(a.data)-new Date(b.data));
+  let saldo = 0;
+  let html = `<table><thead><tr><th>Data</th><th>Tipo</th><th>Qtd</th><th>Custo Un.</th><th>Saldo</th><th>Documento</th><th>Observação</th></tr></thead><tbody>`;
+  if(!movs.length) html+=`<tr><td colspan="7" class="empty">Sem movimentações</td></tr>`;
+  movs.forEach(m=>{
+    saldo += m.tipo==='entrada'? m.quantidade : (m.tipo==='saida'? -m.quantidade : m.quantidade);
+    html+=`<tr><td>${fmtDate(m.data)}</td><td>${m.tipo}</td><td>${m.quantidade}</td><td>${fmtMoney(m.custo_unitario)}</td><td><strong>${saldo}</strong></td><td>${m.documento_tipo}${m.documento_id?' #'+m.documento_id:''}</td><td>${esc(m.observacao||'')}</td></tr>`;
+  });
+  html+=`</tbody></table>`;
+  $('#kardex-body').innerHTML = html;
+};
+
+window.openMovEstoque = function(tipoPre){
+  const prods = db.getAll(DB_KEYS.PRODUTOS);
+  if(!prods.length){ Swal.fire('Atenção','Cadastre produtos primeiro','warning'); return; }
+  const opts = prods.map(p=>`<option value="${p.id}" data-custo="${p.preco_custo}">${esc(p.descricao)} (saldo ${p.estoque_atual})</option>`).join('');
+  Swal.fire({
+    title:'Movimentação de Estoque',width:560,
+    html:`
+      <div class="form-grid full">
+        <div class="form-field"><label>Tipo</label>
+          <select id="m-tipo">
+            <option value="entrada" ${tipoPre==='entrada'?'selected':''}>Entrada</option>
+            <option value="saida" ${tipoPre==='saida'?'selected':''}>Saída</option>
+            <option value="ajuste" ${tipoPre==='ajuste'?'selected':''}>Ajuste</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Produto</label><select id="m-prod">${opts}</select></div>
+        <div class="form-field"><label>Quantidade</label><input id="m-qtd" type="number" min="1" value="1"></div>
+        <div class="form-field"><label>Custo Unitário (R$)</label><input id="m-custo" type="number" step="0.01" value="${prods[0].preco_custo}"></div>
+        <div class="form-field"><label>Observação</label><textarea id="m-obs" rows="2"></textarea></div>
+      </div>`,
+    showCancelButton:true,confirmButtonText:'Registrar',cancelButtonText:'Cancelar',focusConfirm:false,
+    didOpen:()=>{ $('#m-prod').addEventListener('change',e=>{ const o=e.target.selectedOptions[0]; $('#m-custo').value = o.dataset.custo; }); },
+    preConfirm:()=>{
+      const tipo=$('#m-tipo').value;
+      const prodId=Number($('#m-prod').value);
+      const qtd=Number($('#m-qtd').value);
+      const custo=toNum($('#m-custo').value);
+      if(!qtd||qtd<=0) return Swal.showValidationMessage('Quantidade inválida');
+      const p = db.getById(DB_KEYS.PRODUTOS,prodId);
+      if(tipo==='saida' && p.estoque_atual<qtd){
+        return Swal.showValidationMessage('Estoque insuficiente (saldo '+p.estoque_atual+')');
+      }
+      return {tipo,prodId,qtd,custo,obs:$('#m-obs').value.trim()};
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      db.transaction(()=>{
+        db.insert(DB_KEYS.MOV_ESTOQUE,{
+          produto_id:r.value.prodId,tipo:r.value.tipo,quantidade:r.value.qtd,
+          custo_unitario:r.value.custo,
+          documento_tipo: r.value.tipo==='ajuste'?'inventario':'ajuste',
+          documento_id:null,observacao:r.value.obs||'Movimentação manual',
+          data:todayISO(),usuario_id:auth.currentUser().id
+        });
+        const p = db.getById(DB_KEYS.PRODUTOS,r.value.prodId);
+        const novo = r.value.tipo==='entrada' ? p.estoque_atual+r.value.qtd
+                   : r.value.tipo==='saida' ? p.estoque_atual-r.value.qtd
+                   : r.value.qtd; // ajuste define saldo
+        db.update(DB_KEYS.PRODUTOS,p.id,{estoque_atual:novo});
+      });
+      toast('success','Movimentação registrada');
+      renderEstoque();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+/* ============================================================
+   12. VIEW: VENDAS
+   ============================================================ */
+function renderVendas(){
+  const s = getState('vendas');
+  let list = db.getAll(DB_KEYS.PEDIDOS_VENDA);
+  if(s.search){ const q=s.search.toLowerCase(); list=list.filter(p=>String(p.numero).includes(q)); }
+  list = list.sort((a,b)=>new Date(b.criado_em)-new Date(a.criado_em));
+  const perPage=s.perPage,total=list.length;
+  const pages=Math.max(1,Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows=list.slice((s.page-1)*perPage,s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Pedidos de Venda
+      <button class="btn btn-primary" onclick="openNovaVenda()">+ Novo Orçamento/Pedido</button>
+    </div>
+    <div class="toolbar"><input type="text" placeholder="🔍 Buscar por nº..." value="${esc(s.search)}" oninput="getState('vendas').search=this.value;getState('vendas').page=1;renderVendas()"></div>
+    <table><thead><tr><th>Nº</th><th>Data</th><th>Cliente</th><th>Vendedor</th><th>Itens</th><th>Total</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="8" class="empty">Nenhum pedido</td></tr>`;
+  else rows.forEach(p=>{
+    const cli=db.getById(DB_KEYS.CLIENTES,p.cliente_id);
+    const vend=db.getById(DB_KEYS.USUARIOS,p.vendedor_id);
+    html+=`<tr>
+      <td><strong>${esc(p.numero)}</strong></td>
+      <td>${fmtDate(p.data_emissao||p.criado_em)}</td>
+      <td>${cli?esc(cli.nome):'—'}</td>
+      <td>${vend?esc(vend.nome):'—'}</td>
+      <td>${p.itens.length}</td>
+      <td>${fmtMoney(p.total)}</td>
+      <td><span class="status ${p.status}">${p.status}</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openVendaDetalhe(${p.id})">Ver</button>
+        ${p.status==='orcamento'?`<button class="btn btn-primary btn-sm" onclick="converterPedido(${p.id})">→ Pedido</button>`:''}
+        ${p.status==='pedido'?`<button class="btn btn-success btn-sm" onclick="faturarVenda(${p.id})">Faturar</button>`:''}
+        ${(p.status==='orcamento'||p.status==='pedido')?`<button class="btn btn-danger btn-sm" onclick="cancelarVenda(${p.id})">Cancelar</button>`:''}
+        ${p.status==='faturado'?`<button class="btn btn-warning btn-sm" onclick="cancelarVenda(${p.id})">Cancelar (estorno)</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="imprimirNota(${p.id})">🖨</button>
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table>${renderPagination('vendas',total,perPage)}</div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Vendas';
+  window._rerender_vendas = renderVendas;
+}
+
+window.openNovaVenda = function(){
+  const clientes = db.getAll(DB_KEYS.CLIENTES).filter(c=>c.situacao==='ativo');
+  const produtos = db.getAll(DB_KEYS.PRODUTOS).filter(p=>p.situacao==='ativo');
+  const vendedor = db.getAll(DB_KEYS.USUARIOS).filter(u=>u.perfil==='Vendedor'||u.perfil==='Administrador');
+  if(!clientes.length||!produtos.length){ Swal.fire('Atenção','É necessário ter cliente e produto cadastrados.','warning'); return; }
+  const cfg = db.getConfig();
+  const optsCli = clientes.map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('');
+  const optsVend = vendedor.map(v=>`<option value="${v.id}">${esc(v.nome)}</option>`).join('');
+
+  Swal.fire({
+    title:'Novo Orçamento',width:900,
+    html:`
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-field"><label>Cliente</label><select id="v-cli">${optsCli}</select></div>
+        <div class="form-field"><label>Vendedor</label><select id="v-vend">${optsVend}</select></div>
+      </div>
+      <table class="modal-items" id="v-items-table">
+        <thead><tr><th>Produto</th><th style="width:70px">Qtd</th><th style="width:100px">Preço</th><th style="width:70px">Desc%</th><th style="width:100px">Subtotal</th><th style="width:30px"></th></tr></thead>
+        <tbody id="v-items-body"></tbody>
+      </table>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="addVendaItem()">+ Adicionar Item</button>
+      <div class="total-line">
+        <span>Desconto Total (%)</span>
+        <input id="v-desc-total" type="number" min="0" max="100" step="0.1" value="0" style="width:80px;padding:4px;border:1px solid #ddd;border-radius:4px">
+        <span>Total:</span>
+        <span id="v-total-display">R$ 0,00</span>
+      </div>`,
+    showCancelButton:true,confirmButtonText:'Criar Orçamento',cancelButtonText:'Cancelar',focusConfirm:false,
+    didOpen:()=>{
+      window._vendaProdutos = produtos;
+      addVendaItem();
+      $('#v-desc-total').addEventListener('input',calcVendaTotal);
+    },
+    preConfirm:()=>{
+      const items = [];
+      $$('#v-items-body tr').forEach(tr=>{
+        const pid = Number(tr.querySelector('.v-prod').value);
+        const qtd = Number(tr.querySelector('.v-qtd').value);
+        const preco = toNum(tr.querySelector('.v-preco').value);
+        const desc = toNum(tr.querySelector('.v-desc').value);
+        if(qtd>0){
+          const sub = qtd*preco*(1-desc/100);
+          items.push({produto_id:pid,quantidade:qtd,preco_unitario:preco,desconto:desc,subtotal:sub});
+        }
+      });
+      if(!items.length) return Swal.showValidationMessage('Adicione pelo menos 1 item');
+      const descTotal = toNum($('#v-desc-total').value);
+      if(descTotal>cfg.parametros.desconto_maximo_percentual){
+        const u = auth.currentUser();
+        if(u.perfil!=='Administrador') return Swal.showValidationMessage('Desconto acima do limite ('+cfg.parametros.desconto_maximo_percentual+'%) exige perfil Administrador');
+      }
+      const subtotal = items.reduce((s,i)=>s+i.subtotal,0);
+      const total = subtotal*(1-descTotal/100);
+      return {
+        cliente_id:Number($('#v-cli').value),
+        vendedor_id:Number($('#v-vend').value),
+        items, subtotal, desconto_total:descTotal, total
+      };
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      const d = r.value;
+      const numero = 'V-'+Date.now().toString().slice(-6);
+      db.insert(DB_KEYS.PEDIDOS_VENDA,{
+        numero, cliente_id:d.cliente_id, vendedor_id:d.vendedor_id,
+        data_emissao:todayISO(), status:'orcamento',
+        itens:d.items, subtotal:d.subtotal, desconto_total:d.desconto_total, total:d.total,
+        observacoes:''
+      });
+      toast('success','Orçamento criado');
+      renderVendas();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+window.addVendaItem = function(){
+  const prods = window._vendaProdutos || [];
+  const opts = prods.map(p=>`<option value="${p.id}" data-preco="${p.preco_venda}" data-custo="${p.preco_custo}">${esc(p.descricao)} (saldo ${p.estoque_atual})</option>`).join('');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><select class="v-prod">${opts}</select></td>
+    <td><input class="v-qtd" type="number" min="1" value="1"></td>
+    <td><input class="v-preco" type="number" step="0.01" value="${prods[0]?.preco_venda||0}"></td>
+    <td><input class="v-desc" type="number" step="0.1" min="0" max="100" value="0"></td>
+    <td class="subtotal-cell">R$ 0,00</td>
+    <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove();calcVendaTotal()">×</button></td>`;
+  $('#v-items-body').appendChild(tr);
+  tr.querySelector('.v-prod').addEventListener('change',e=>{
+    const o = e.target.selectedOptions[0];
+    tr.querySelector('.v-preco').value = o.dataset.preco;
+    calcVendaTotal();
+  });
+  tr.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',calcVendaTotal));
+  calcVendaTotal();
+};
+
+window.calcVendaTotal = function(){
+  let subtotal=0;
+  $$('#v-items-body tr').forEach(tr=>{
+    const qtd = Number(tr.querySelector('.v-qtd').value)||0;
+    const preco = toNum(tr.querySelector('.v-preco').value);
+    const desc = toNum(tr.querySelector('.v-desc').value);
+    const sub = qtd*preco*(1-desc/100);
+    tr.querySelector('.subtotal-cell').textContent = fmtMoney(sub);
+    subtotal += sub;
+  });
+  const descTotal = toNum($('#v-desc-total')?.value);
+  const total = subtotal*(1-descTotal/100);
+  if($('#v-total-display')) $('#v-total-display').textContent = fmtMoney(total);
+};
+
+window.converterPedido = function(id){
+  try{
+    db.update(DB_KEYS.PEDIDOS_VENDA,id,{status:'pedido'});
+    toast('success','Orçamento convertido em pedido');
+    renderVendas();
+  }catch(e){ toast('error',e.message); }
+};
+
+window.faturarVenda = function(id){
+  const pedido = db.getById(DB_KEYS.PEDIDOS_VENDA,id);
+  const cfg = db.getConfig();
+  confirmDanger('Faturar pedido?','Será gerada baixa de estoque e conta a receber. Continuar?').then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      db.transaction(()=>{
+        const ped = db.getById(DB_KEYS.PEDIDOS_VENDA,id);
+        // Validar estoque
+        if(cfg.parametros.bloquear_venda_sem_estoque){
+          for(const item of ped.itens){
+            const p = db.getById(DB_KEYS.PRODUTOS,item.produto_id);
+            if(!p) throw new Error('Produto não encontrado');
+            if(p.estoque_atual < item.quantidade) throw new Error(`Estoque insuficiente para "${p.descricao}" (saldo ${p.estoque_atual}, pedido ${item.quantidade})`);
+          }
+        }
+        // Baixar estoque
+        const totais = {};
+        ped.itens.forEach(i=>{ totais[i.produto_id]=(totais[i.produto_id]||0)+i.quantidade; });
+        Object.entries(totais).forEach(([pid,qty])=>{
+          const p = db.getById(DB_KEYS.PRODUTOS,Number(pid));
+          db.insert(DB_KEYS.MOV_ESTOQUE,{
+            produto_id:p.id,tipo:'saida',quantidade:qty,
+            custo_unitario:p.preco_custo,
+            documento_tipo:'venda',documento_id:ped.id,
+            observacao:'Faturamento '+ped.numero,data:todayISO(),
+            usuario_id:auth.currentUser().id
+          });
+          db.update(DB_KEYS.PRODUTOS,p.id,{estoque_atual:p.estoque_atual-qty});
+        });
+        // Conta a receber
+        const cr = db.insert(DB_KEYS.CONTAS_RECEBER,{
+          numero:'CR-'+Date.now().toString().slice(-6),
+          cliente_id:ped.cliente_id,
+          descricao:'Venda '+ped.numero,
+          origem_tipo:'venda',origem_id:ped.id,parcela:'1/1',
+          valor:ped.total,
+          vencimento:new Date(Date.now()+30*86400000).toISOString(),
+          status:'aberto',data_pagamento:null,forma_pagamento:null
+        });
+        db.update(DB_KEYS.PEDIDOS_VENDA,ped.id,{status:'faturado',data_faturamento:todayISO(),conta_receber_id:cr.id});
+      });
+      toast('success','Venda faturada com sucesso');
+      renderVendas();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+window.cancelarVenda = function(id){
+  const p = db.getById(DB_KEYS.PEDIDOS_VENDA,id);
+  if(p.status==='faturado'){
+    confirmDanger('Cancelar venda faturada?','Serão gerados estornos de estoque e financeiro. A venda original será preservada (RN08).').then(r=>{
+      if(!r.isConfirmed) return;
+      try{
+        db.transaction(()=>{
+          const ped = db.getById(DB_KEYS.PEDIDOS_VENDA,id);
+          // Estornar estoque
+          const totais = {};
+          ped.itens.forEach(i=>{ totais[i.produto_id]=(totais[i.produto_id]||0)+i.quantidade; });
+          Object.entries(totais).forEach(([pid,qty])=>{
+            const p = db.getById(DB_KEYS.PRODUTOS,Number(pid));
+            db.insert(DB_KEYS.MOV_ESTOQUE,{
+              produto_id:p.id,tipo:'entrada',quantidade:qty,
+              custo_unitario:p.preco_custo,documento_tipo:'ajuste',documento_id:ped.id,
+              observacao:'Estorno cancelamento '+ped.numero,data:todayISO(),
+              usuario_id:auth.currentUser().id
+            });
+            db.update(DB_KEYS.PRODUTOS,p.id,{estoque_atual:p.estoque_atual+qty});
+          });
+          // Cancelar conta a receber
+          if(ped.conta_receber_id){
+            db.update(DB_KEYS.CONTAS_RECEBER,ped.conta_receber_id,{status:'cancelado'});
+          }
+          db.update(DB_KEYS.PEDIDOS_VENDA,ped.id,{status:'cancelado'});
+        });
+        toast('success','Venda cancelada e estornada');
+        renderVendas();
+      }catch(e){ toast('error',e.message); }
+    });
+  } else {
+    confirmDanger('Cancelar venda?','Deseja realmente cancelar?').then(r=>{
+      if(!r.isConfirmed) return;
+      db.update(DB_KEYS.PEDIDOS_VENDA,id,{status:'cancelado'});
+      toast('success','Venda cancelada');
+      renderVendas();
+    });
+  }
+};
+
+window.openVendaDetalhe = function(id){
+  const p = db.getById(DB_KEYS.PEDIDOS_VENDA,id);
+  const cli = db.getById(DB_KEYS.CLIENTES,p.cliente_id);
+  let html = `<div style="text-align:left">
+    <p><strong>Nº:</strong> ${esc(p.numero)} &nbsp; <strong>Status:</strong> <span class="status ${p.status}">${p.status}</span></p>
+    <p><strong>Cliente:</strong> ${cli?esc(cli.nome):'—'}</p>
+    <p><strong>Data:</strong> ${fmtDate(p.data_emissao)}</p>
+    <table class="modal-items"><thead><tr><th>Produto</th><th>Qtd</th><th>Preço</th><th>Desc%</th><th>Subtotal</th></tr></thead><tbody>`;
+  p.itens.forEach(i=>{
+    const prod = db.getById(DB_KEYS.PRODUTOS,i.produto_id);
+    html+=`<tr><td>${prod?esc(prod.descricao):'—'}</td><td>${i.quantidade}</td><td>${fmtMoney(i.preco_unitario)}</td><td>${i.desconto}%</td><td>${fmtMoney(i.subtotal)}</td></tr>`;
+  });
+  html += `</tbody></table>
+    <div class="total-line"><span>Subtotal:</span><span>${fmtMoney(p.subtotal)}</span></div>
+    <div class="total-line"><span>Desconto:</span><span>${p.desconto_total}%</span></div>
+    <div class="total-line"><span>Total:</span><span><strong>${fmtMoney(p.total)}</strong></span></div>
+  </div>`;
+  Swal.fire({title:'Detalhes do Pedido',html,width:720,confirmButtonText:'Fechar'});
+};
+
+window.imprimirNota = function(id){
+  const p = db.getById(DB_KEYS.PEDIDOS_VENDA,id);
+  const cli = db.getById(DB_KEYS.CLIENTES,p.cliente_id);
+  const cfg = db.getConfig();
+  const w = window.open('','_blank','width=700,height=800');
+  w.document.write(`
+    <html><head><title>Nota ${esc(p.numero)}</title>
+    <style>body{font-family:Arial,sans-serif;padding:20px;font-size:12px} h2{margin:0;font-size:16px} table{width:100%;border-collapse:collapse;margin:12px 0} th,td{padding:6px;border:1px solid #ccc;text-align:left} th{background:#f0f0f0} .right{text-align:right} .header{border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:10px}</style>
+    </head><body>
+    <div class="header">
+      <h2>${esc(cfg.empresa.razao_social)}</h2>
+      <p>CNPJ: ${esc(cfg.empresa.cnpj)} — ${esc(cfg.empresa.endereco)}</p>
+      <p>${esc(cfg.empresa.regime_tributario)}</p>
+    </div>
+    <h3>NOTA SIMPLIFICADA — Nº ${esc(p.numero)}</h3>
+    <p><strong>Data:</strong> ${fmtDate(p.data_emissao)} &nbsp; <strong>Cliente:</strong> ${cli?esc(cli.nome):'—'} &nbsp; <strong>CPF/CNPJ:</strong> ${cli?esc(cli.cpf_cnpj):'—'}</p>
+    <table><thead><tr><th>Produto</th><th class="right">Qtd</th><th class="right">Preço</th><th class="right">Desc%</th><th class="right">Subtotal</th></tr></thead><tbody>
+    ${p.itens.map(i=>{const prod=db.getById(DB_KEYS.PRODUTOS,i.produto_id);return `<tr><td>${prod?esc(prod.descricao):'—'}</td><td class="right">${i.quantidade}</td><td class="right">${fmtMoney(i.preco_unitario)}</td><td class="right">${i.desconto}</td><td class="right">${fmtMoney(i.subtotal)}</td></tr>`;}).join('')}
+    </tbody></table>
+    <p class="right"><strong>Subtotal:</strong> ${fmtMoney(p.subtotal)}<br>
+    <strong>Desconto:</strong> ${p.desconto_total}%<br>
+    <strong>Total:</strong> ${fmtMoney(p.total)}</p>
+    <p style="margin-top:40px;text-align:center;font-size:10px;color:#888">Documento gerado eletronicamente — sem valor fiscal</p>
+    </body></html>
+  `);
+  w.document.close();
+  setTimeout(()=>{ w.print(); },300);
+};
+
+/* ============================================================
+   13. VIEW: COMPRAS
+   ============================================================ */
+function renderCompras(){
+  const list = db.getAll(DB_KEYS.PEDIDOS_COMPRA).sort((a,b)=>new Date(b.criado_em)-new Date(a.criado_em));
+  let html=`<div class="card">
+    <div class="card-title">Pedidos de Compra
+      <button class="btn btn-primary" onclick="openNovaCompra()">+ Novo Pedido</button>
+    </div>
+    <table><thead><tr><th>Nº</th><th>Data</th><th>Fornecedor</th><th>Itens</th><th>Total</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+  if(!list.length) html+=`<tr><td colspan="7" class="empty">Nenhum pedido</td></tr>`;
+  else list.forEach(p=>{
+    const f=db.getById(DB_KEYS.FORNECEDORES,p.fornecedor_id);
+    html+=`<tr>
+      <td><strong>${esc(p.numero)}</strong></td>
+      <td>${fmtDate(p.data_emissao)}</td>
+      <td>${f?esc(f.razao_social):'—'}</td>
+      <td>${p.itens.length}</td>
+      <td>${fmtMoney(p.total)}</td>
+      <td><span class="status ${p.status==='recebido'?'recebido':p.status==='cancelado'?'cancelado':'aberto'}">${p.status}</span></td>
+      <td>
+        ${p.status==='pedido'?`<button class="btn btn-success btn-sm" onclick="receberCompra(${p.id})">Receber</button>`:''}
+        ${p.status==='pedido'?`<button class="btn btn-danger btn-sm" onclick="cancelarCompra(${p.id})">Cancelar</button>`:''}
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Compras';
+}
+
+window.openNovaCompra = function(){
+  const forns = db.getAll(DB_KEYS.FORNECEDORES);
+  const prods = db.getAll(DB_KEYS.PRODUTOS);
+  if(!forns.length||!prods.length){ Swal.fire('Atenção','É necessário ter fornecedor e produto cadastrados.','warning'); return; }
+  const optsF = forns.map(f=>`<option value="${f.id}">${esc(f.razao_social)}</option>`).join('');
+
+  Swal.fire({
+    title:'Novo Pedido de Compra',width:900,
+    html:`
+      <div class="form-field" style="margin-bottom:12px"><label>Fornecedor</label><select id="c-forn">${optsF}</select></div>
+      <table class="modal-items" id="c-items-table">
+        <thead><tr><th>Produto</th><th style="width:70px">Qtd</th><th style="width:100px">Custo Un.</th><th style="width:100px">Subtotal</th><th style="width:30px"></th></tr></thead>
+        <tbody id="c-items-body"></tbody>
+      </table>
+      <button type="button" class="btn btn-ghost btn-sm" onclick="addCompraItem()">+ Adicionar Item</button>
+      <div class="total-line"><span>Total:</span><span id="c-total">R$ 0,00</span></div>`,
+    showCancelButton:true,confirmButtonText:'Criar Pedido',cancelButtonText:'Cancelar',focusConfirm:false,
+    didOpen:()=>{ window._compraProdutos = prods; addCompraItem(); },
+    preConfirm:()=>{
+      const items=[];
+      $$('#c-items-body tr').forEach(tr=>{
+        const pid=Number(tr.querySelector('.c-prod').value);
+        const qtd=Number(tr.querySelector('.c-qtd').value);
+        const preco=toNum(tr.querySelector('.c-preco').value);
+        if(qtd>0) items.push({produto_id:pid,quantidade:qtd,preco_unitario:preco,subtotal:qtd*preco});
+      });
+      if(!items.length) return Swal.showValidationMessage('Adicione pelo menos 1 item');
+      return {fornecedor_id:Number($('#c-forn').value),items,total:items.reduce((s,i)=>s+i.subtotal,0)};
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      db.insert(DB_KEYS.PEDIDOS_COMPRA,{
+        numero:'C-'+Date.now().toString().slice(-6),
+        fornecedor_id:r.value.fornecedor_id,
+        data_emissao:todayISO(),status:'pedido',
+        itens:r.value.items,subtotal:r.value.total,desconto_total:0,total:r.value.total
+      });
+      toast('success','Pedido de compra criado');
+      renderCompras();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+window.addCompraItem = function(){
+  const prods = window._compraProdutos||[];
+  const opts = prods.map(p=>`<option value="${p.id}" data-custo="${p.preco_custo}">${esc(p.descricao)}</option>`).join('');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><select class="c-prod">${opts}</select></td>
+    <td><input class="c-qtd" type="number" min="1" value="1"></td>
+    <td><input class="c-preco" type="number" step="0.01" value="${prods[0]?.preco_custo||0}"></td>
+    <td class="subtotal-cell">R$ 0,00</td>
+    <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove();calcCompraTotal()">×</button></td>`;
+  $('#c-items-body').appendChild(tr);
+  tr.querySelector('.c-prod').addEventListener('change',e=>{ tr.querySelector('.c-preco').value = e.target.selectedOptions[0].dataset.custo; calcCompraTotal(); });
+  tr.querySelectorAll('input').forEach(i=>i.addEventListener('input',calcCompraTotal));
+  calcCompraTotal();
+};
+window.calcCompraTotal = function(){
+  let t=0;
+  $$('#c-items-body tr').forEach(tr=>{
+    const q=Number(tr.querySelector('.c-qtd').value)||0;
+    const p=toNum(tr.querySelector('.c-preco').value);
+    const s=q*p; tr.querySelector('.subtotal-cell').textContent=fmtMoney(s); t+=s;
+  });
+  if($('#c-total')) $('#c-total').textContent=fmtMoney(t);
+};
+
+window.receberCompra = function(id){
+  confirmDanger('Receber pedido de compra?','Será gerada entrada em estoque e conta a pagar. Continuar?').then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      db.transaction(()=>{
+        const ped = db.getById(DB_KEYS.PEDIDOS_COMPRA,id);
+        for(const item of ped.itens){
+          const p = db.getById(DB_KEYS.PRODUTOS,item.produto_id);
+          db.insert(DB_KEYS.MOV_ESTOQUE,{
+            produto_id:p.id,tipo:'entrada',quantidade:item.quantidade,
+            custo_unitario:item.preco_unitario,documento_tipo:'compra',documento_id:ped.id,
+            observacao:'Recebimento '+ped.numero,data:todayISO(),
+            usuario_id:auth.currentUser().id
+          });
+          db.update(DB_KEYS.PRODUTOS,p.id,{estoque_atual:p.estoque_atual+item.quantidade});
+        }
+        const cp = db.insert(DB_KEYS.CONTAS_PAGAR,{
+          numero:'CP-'+Date.now().toString().slice(-6),
+          fornecedor_id:ped.fornecedor_id,
+          descricao:'Compra '+ped.numero,
+          origem_tipo:'compra',origem_id:ped.id,parcela:'1/1',
+          valor:ped.total,
+          vencimento:new Date(Date.now()+30*86400000).toISOString(),
+          status:'aberto',data_pagamento:null,forma_pagamento:null
+        });
+        db.update(DB_KEYS.PEDIDOS_COMPRA,ped.id,{status:'recebido',data_recebimento:todayISO(),conta_pagar_id:cp.id});
+      });
+      toast('success','Compra recebida — estoque e financeiro atualizados');
+      renderCompras();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+window.cancelarCompra = function(id){
+  confirmDanger('Cancelar pedido?','Deseja realmente cancelar?').then(r=>{
+    if(!r.isConfirmed) return;
+    db.update(DB_KEYS.PEDIDOS_COMPRA,id,{status:'cancelado'});
+    toast('success','Pedido cancelado');
+    renderCompras();
+  });
+};
+
+/* ============================================================
+   14. VIEW: CONTAS A RECEBER
+   ============================================================ */
+function renderContasReceber(){
+  // marca vencidos
+  const hoje = new Date();
+  db.getAll(DB_KEYS.CONTAS_RECEBER).forEach(c=>{
+    if(c.status==='aberto' && new Date(c.vencimento)<hoje){
+      db.update(DB_KEYS.CONTAS_RECEBER,c.id,{status:'vencido'});
+    }
+  });
+  const s = getState('contas-receber');
+  let list = db.getAll(DB_KEYS.CONTAS_RECEBER).sort((a,b)=>new Date(a.vencimento)-new Date(b.vencimento));
+  if(s.search){ const q=s.search.toLowerCase(); list=list.filter(c=>String(c.numero).toLowerCase().includes(q)); }
+  const perPage=s.perPage,total=list.length;
+  const pages=Math.max(1,Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows=list.slice((s.page-1)*perPage,s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Contas a Receber</div>
+    <div class="toolbar"><input type="text" placeholder="🔍 Buscar..." value="${esc(s.search)}" oninput="getState('contas-receber').search=this.value;getState('contas-receber').page=1;renderContasReceber()"></div>
+    <table><thead><tr><th>Nº</th><th>Cliente</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="7" class="empty">Nenhuma conta</td></tr>`;
+  else rows.forEach(c=>{
+    const cli=db.getById(DB_KEYS.CLIENTES,c.cliente_id);
+    html+=`<tr>
+      <td>${esc(c.numero)}</td>
+      <td>${cli?esc(cli.nome):'—'}</td>
+      <td>${esc(c.descricao||'')}</td>
+      <td>${fmtMoney(c.valor)}</td>
+      <td>${fmtDate(c.vencimento)}</td>
+      <td><span class="status ${c.status}">${c.status}</span></td>
+      <td>
+        ${(c.status==='aberto'||c.status==='vencido')?`<button class="btn btn-success btn-sm" onclick="baixarTitulo('receber',${c.id})">Baixar</button>`:''}
+        ${c.status==='pago'?`<span style="font-size:11px;color:#6b7280">Pago ${fmtDate(c.data_pagamento)}</span>`:''}
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table>${renderPagination('contas-receber',total,perPage)}</div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Contas a Receber';
+  window._rerender_contasReceber = renderContasReceber;
+}
+
+/* ============================================================
+   15. VIEW: CONTAS A PAGAR
+   ============================================================ */
+function renderContasPagar(){
+  const hoje=new Date();
+  db.getAll(DB_KEYS.CONTAS_PAGAR).forEach(c=>{
+    if(c.status==='aberto' && new Date(c.vencimento)<hoje){
+      db.update(DB_KEYS.CONTAS_PAGAR,c.id,{status:'vencido'});
+    }
+  });
+  const s = getState('contas-pagar');
+  let list = db.getAll(DB_KEYS.CONTAS_PAGAR).sort((a,b)=>new Date(a.vencimento)-new Date(b.vencimento));
+  if(s.search){ const q=s.search.toLowerCase(); list=list.filter(c=>String(c.numero).toLowerCase().includes(q)); }
+  const perPage=s.perPage,total=list.length;
+  const pages=Math.max(1,Math.ceil(total/perPage));
+  if(s.page>pages) s.page=pages;
+  const rows=list.slice((s.page-1)*perPage,s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Contas a Pagar</div>
+    <div class="toolbar"><input type="text" placeholder="🔍 Buscar..." value="${esc(s.search)}" oninput="getState('contas-pagar').search=this.value;getState('contas-pagar').page=1;renderContasPagar()"></div>
+    <table><thead><tr><th>Nº</th><th>Fornecedor</th><th>Descrição</th><th>Valor</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="7" class="empty">Nenhuma conta</td></tr>`;
+  else rows.forEach(c=>{
+    const f=db.getById(DB_KEYS.FORNECEDORES,c.fornecedor_id);
+    html+=`<tr>
+      <td>${esc(c.numero)}</td>
+      <td>${f?esc(f.razao_social):'—'}</td>
+      <td>${esc(c.descricao||'')}</td>
+      <td>${fmtMoney(c.valor)}</td>
+      <td>${fmtDate(c.vencimento)}</td>
+      <td><span class="status ${c.status}">${c.status}</span></td>
+      <td>${(c.status==='aberto'||c.status==='vencido')?`<button class="btn btn-success btn-sm" onclick="baixarTitulo('pagar',${c.id})">Pagar</button>`:''}${c.status==='pago'?`<span style="font-size:11px;color:#6b7280">Pago ${fmtDate(c.data_pagamento)}</span>`:''}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>${renderPagination('contas-pagar',total,perPage)}</div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Contas a Pagar';
+  window._rerender_contasPagar = renderContasPagar;
+}
+
+window.baixarTitulo = function(tipo,id){
+  const key = tipo==='receber'? DB_KEYS.CONTAS_RECEBER : DB_KEYS.CONTAS_PAGAR;
+  const t = db.getById(key,id);
+  Swal.fire({
+    title: tipo==='receber'? 'Baixar Conta a Receber':'Pagar Conta',
+    html:`
+      <div class="form-grid full">
+        <div class="form-field"><label>Data</label><input type="date" id="b-data" value="${new Date().toISOString().slice(0,10)}"></div>
+        <div class="form-field"><label>Forma de Pagamento</label>
+          <select id="b-forma"><option>Dinheiro</option><option>PIX</option><option>Transferência</option><option>Cartão</option><option>Boleto</option></select>
+        </div>
+        <div class="form-field"><label>Conta Bancária</label>
+          <select id="b-conta">
+            ${(db.getConfig().contas_bancarias||[]).map(c=>`<option value="${c.id}">${esc(c.nome)}</option>`).join('')}
+          </select>
+        </div>
+      </div>`,
+    showCancelButton:true,confirmButtonText:'Confirmar',cancelButtonText:'Cancelar',focusConfirm:false,
+    preConfirm:()=>{
+      const data = $('#b-data').value;
+      if(!data) return Swal.showValidationMessage('Informe a data');
+      return {data:new Date(data).toISOString(),forma:$('#b-forma').value,conta:Number($('#b-conta').value)};
+    }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    try{
+      db.transaction(()=>{
+        db.update(key,id,{status:'pago',data_pagamento:r.value.data,forma_pagamento:r.value.forma});
+        db.insert(DB_KEYS.CAIXA_MOV,{
+          tipo: tipo==='receber'?'entrada':'saida',
+          valor: t.valor, data:r.value.data,
+          descricao: (tipo==='receber'?'Recebimento ':'Pagamento ')+t.numero,
+          origem: tipo==='receber'?'conta_receber':'conta_pagar',
+          origem_id:id, conta_bancaria_id:r.value.conta,
+          usuario_id:auth.currentUser().id
+        });
+      });
+      toast('success','Título baixado');
+      if(tipo==='receber') renderContasReceber(); else renderContasPagar();
+    }catch(e){ toast('error',e.message); }
+  });
+};
+
+/* ============================================================
+   16. VIEW: FLUXO DE CAIXA
+   ============================================================ */
+function renderFluxoCaixa(){
+  const movs = db.getAll(DB_KEYS.CAIXA_MOV).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  let entradas=0, saidas=0;
+  movs.forEach(m=>{ if(m.tipo==='entrada') entradas+=m.valor; else saidas+=m.valor; });
+  const cfg = db.getConfig();
+  const saldoInicial = (cfg.contas_bancarias||[]).reduce((s,c)=>s+(c.saldo_inicial||0),0);
+  const saldo = saldoInicial + entradas - saidas;
+
+  let html=`<div class="kpi-grid">
+    <div class="kpi success"><div class="kpi-label">Entradas</div><div class="kpi-value">${fmtMoney(entradas)}</div></div>
+    <div class="kpi danger"><div class="kpi-label">Saídas</div><div class="kpi-value">${fmtMoney(saidas)}</div></div>
+    <div class="kpi"><div class="kpi-label">Saldo Atual</div><div class="kpi-value">${fmtMoney(saldo)}</div></div>
+  </div>`;
+
+  html+=`<div class="card">
+    <div class="card-title">Movimentações de Caixa</div>
+    <table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Origem</th></tr></thead><tbody>`;
+  if(!movs.length) html+=`<tr><td colspan="5" class="empty">Nenhuma movimentação</td></tr>`;
+  else movs.forEach(m=>{
+    html+=`<tr>
+      <td>${fmtDateTime(m.data)}</td>
+      <td><span class="status ${m.tipo==='entrada'?'pago':'vencido'}">${m.tipo}</span></td>
+      <td>${esc(m.descricao)}</td>
+      <td style="color:${m.tipo==='entrada'?'#10b981':'#ef4444'};font-weight:600">${m.tipo==='entrada'?'+':'-'} ${fmtMoney(m.valor)}</td>
+      <td>${esc(m.origem||'')}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Fluxo de Caixa';
+}
+
+/* ============================================================
+   17. VIEW: RELATÓRIOS
+   ============================================================ */
+function renderRelatorios(){
+  let html=`<div class="card">
+    <div class="card-title">Relatórios Gerenciais</div>
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="relVendas()">📊 Vendas por Período</button>
+      <button class="btn btn-primary" onclick="relPosicao()">📦 Posição de Estoque</button>
+      <button class="btn btn-primary" onclick="relDRE()">💼 DRE Simplificado</button>
+      <button class="btn btn-primary" onclick="relCurvaABC()">📈 Curva ABC</button>
+      <button class="btn btn-ghost" onclick="exportJSON()">💾 Exportar JSON</button>
+    </div>
+  </div>
+  <div id="rel-content"><div class="card"><div class="empty">Selecione um relatório acima</div></div></div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Relatórios';
+}
+
+window.relVendas = function(){
+  const pedidos = db.getAll(DB_KEYS.PEDIDOS_VENDA).filter(p=>p.status==='faturado');
+  const porProduto={}, porCliente={};
+  pedidos.forEach(p=>{
+    p.itens.forEach(i=>{ porProduto[i.produto_id]=(porProduto[i.produto_id]||0)+i.subtotal; });
+    porCliente[p.cliente_id]=(porCliente[p.cliente_id]||0)+p.total;
+  });
+  let html=`<div class="card"><div class="card-title">Vendas Faturadas por Produto</div>
+    <table><thead><tr><th>Produto</th><th>Faturamento</th></tr></thead><tbody>`;
+  const prods = Object.entries(porProduto).sort((a,b)=>b[1]-a[1]);
+  if(!prods.length) html+=`<tr><td colspan="2" class="empty">Sem dados</td></tr>`;
+  prods.forEach(([id,v])=>{const p=db.getById(DB_KEYS.PRODUTOS,Number(id));html+=`<tr><td>${p?esc(p.descricao):'—'}</td><td>${fmtMoney(v)}</td></tr>`;});
+  html+=`</tbody></table></div>`;
+  html+=`<div class="card"><div class="card-title">Vendas por Cliente</div>
+    <table><thead><tr><th>Cliente</th><th>Faturamento</th></tr></thead><tbody>`;
+  const clis = Object.entries(porCliente).sort((a,b)=>b[1]-a[1]);
+  if(!clis.length) html+=`<tr><td colspan="2" class="empty">Sem dados</td></tr>`;
+  clis.forEach(([id,v])=>{const c=db.getById(DB_KEYS.CLIENTES,Number(id));html+=`<tr><td>${c?esc(c.nome):'—'}</td><td>${fmtMoney(v)}</td></tr>`;});
+  html+=`</tbody></table></div>`;
+  $('#rel-content').innerHTML = html;
+};
+
+window.relPosicao = function(){
+  const prods = db.getAll(DB_KEYS.PRODUTOS);
+  let totalCusto=0, totalVenda=0;
+  let html=`<div class="card"><div class="card-title">Posição de Estoque</div>
+    <table><thead><tr><th>SKU</th><th>Produto</th><th>Saldo</th><th>Custo Un.</th><th>Total Custo</th><th>Total Venda</th></tr></thead><tbody>`;
+  prods.forEach(p=>{
+    const tc=p.estoque_atual*p.preco_custo, tv=p.estoque_atual*p.preco_venda;
+    totalCusto+=tc; totalVenda+=tv;
+    html+=`<tr><td>${esc(p.sku)}</td><td>${esc(p.descricao)}</td><td>${p.estoque_atual}</td><td>${fmtMoney(p.preco_custo)}</td><td>${fmtMoney(tc)}</td><td>${fmtMoney(tv)}</td></tr>`;
+  });
+  html+=`<tr style="font-weight:700;background:#f3f4f6"><td colspan="4">TOTAIS</td><td>${fmtMoney(totalCusto)}</td><td>${fmtMoney(totalVenda)}</td></tr>`;
+  html+=`</tbody></table></div>`;
+  $('#rel-content').innerHTML = html;
+};
+
+window.relDRE = function(){
+  const pedidos = db.getAll(DB_KEYS.PEDIDOS_VENDA).filter(p=>p.status==='faturado');
+  let receita=0, cmv=0;
+  pedidos.forEach(p=>{
+    receita+=p.total;
+    p.itens.forEach(i=>{
+      const prod=db.getById(DB_KEYS.PRODUTOS,i.produto_id);
+      cmv += i.quantidade*(prod?prod.preco_custo:0);
+    });
+  });
+  const despesas = db.getAll(DB_KEYS.CAIXA_MOV).filter(m=>m.tipo==='saida' && m.origem==='conta_pagar').reduce((s,m)=>s+m.valor,0);
+  const lucroBruto = receita - cmv;
+  const resultado = lucroBruto - despesas;
+  const margem = receita? (resultado/receita*100) : 0;
+  let html=`<div class="card"><div class="card-title">DRE Simplificado</div>
+    <table><tbody>
+      <tr><td>Receita Bruta de Vendas</td><td style="text-align:right">${fmtMoney(receita)}</td></tr>
+      <tr><td>(−) CMV — Custo das Mercadorias Vendidas</td><td style="text-align:right;color:#ef4444">${fmtMoney(cmv)}</td></tr>
+      <tr style="font-weight:700;background:#f9fafb"><td>= Lucro Bruto</td><td style="text-align:right">${fmtMoney(lucroBruto)}</td></tr>
+      <tr><td>(−) Despesas Operacionais</td><td style="text-align:right;color:#ef4444">${fmtMoney(despesas)}</td></tr>
+      <tr style="font-weight:700;background:#dbeafe"><td>= Resultado do Período</td><td style="text-align:right;color:${resultado>=0?'#10b981':'#ef4444'}">${fmtMoney(resultado)}</td></tr>
+      <tr><td>Margem Líquida</td><td style="text-align:right">${margem.toFixed(1)}%</td></tr>
+    </tbody></table>
+    <p style="margin-top:12px;font-size:11px;color:#6b7280">* Considera apenas vendas faturadas e pagamentos registrados.</p>
+  </div>`;
+  $('#rel-content').innerHTML = html;
+};
+
+window.relCurvaABC = function(){
+  const pedidos = db.getAll(DB_KEYS.PEDIDOS_VENDA).filter(p=>p.status==='faturado');
+  const fat = {};
+  pedidos.forEach(p=>p.itens.forEach(i=>{ fat[i.produto_id]=(fat[i.produto_id]||0)+i.subtotal; }));
+  const arr = Object.entries(fat).map(([id,v])=>({id:Number(id),valor:v})).sort((a,b)=>b.valor-a.valor);
+  const total = arr.reduce((s,x)=>s+x.valor,0);
+  let acum=0;
+  let html=`<div class="card"><div class="card-title">Curva ABC de Produtos</div>
+    <table><thead><tr><th>#</th><th>Produto</th><th>Faturamento</th><th>%</th><th>% Acum.</th><th>Classe</th></tr></thead><tbody>`;
+  arr.forEach((x,i)=>{
+    acum += x.valor;
+    const pct = total? (x.valor/total*100):0;
+    const acumPct = total? (acum/total*100):0;
+    const cls = acumPct<=80?'A':acumPct<=95?'B':'C';
+    const p = db.getById(DB_KEYS.PRODUTOS,x.id);
+    const color = cls==='A'?'#10b981':cls==='B'?'#f59e0b':'#ef4444';
+    html+=`<tr>
+      <td>${i+1}</td><td>${p?esc(p.descricao):'—'}</td>
+      <td>${fmtMoney(x.valor)}</td>
+      <td>${pct.toFixed(1)}%</td>
+      <td>${acumPct.toFixed(1)}%</td>
+      <td><span class="status" style="background:${color}20;color:${color}">${cls}</span></td>
+    </tr>`;
+  });
+  html+=`</tbody></table>
+    <p style="margin-top:12px;font-size:12px;color:#6b7280">Classe A: 80% do faturamento | Classe B: até 95% | Classe C: restante</p>
+  </div>`;
+  $('#rel-content').innerHTML = html;
+};
+
+window.exportJSON = function(){
+  const data = db.exportAll();
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='erp-aurora-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('success','Backup exportado');
+};
+
+/* ============================================================
+   18. VIEW: AUDITORIA
+   ============================================================ */
+function renderAuditoria(){
+  const s = getState('auditoria');
+  let logs = db.getAllWithDeleted(DB_KEYS.LOGS).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  if(s.search){
+    const q = s.search.toLowerCase();
+    logs = logs.filter(l=>JSON.stringify(l).toLowerCase().includes(q));
+  }
+  const perPage = 25, total = logs.length;
+  const pages = Math.max(1, Math.ceil(total/perPage));
+  if(s.page>pages) s.page = pages;
+  const rows = logs.slice((s.page-1)*perPage, s.page*perPage);
+
+  let html=`<div class="card">
+    <div class="card-title">Log de Auditoria</div>
+    <div class="toolbar"><input type="text" placeholder="🔍 Buscar no log..." value="${esc(s.search)}" oninput="getState('auditoria').search=this.value;getState('auditoria').page=1;renderAuditoria()"></div>
+    <table><thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>ID</th><th></th></tr></thead><tbody>`;
+  if(!rows.length) html+=`<tr><td colspan="6" class="empty">Nenhum log</td></tr>`;
+  else rows.forEach(l=>{
+    html+=`<tr>
+      <td>${fmtDateTime(l.timestamp)}</td>
+      <td>${esc(l.usuario_nome||'—')}</td>
+      <td>${l.acao}</td>
+      <td>${l.entidade}</td>
+      <td>${l.entidade_id||'—'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="verLog(${l.id})">Detalhes</button></td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  html+=`<div class="pagination">
+    <button ${s.page===1?'disabled':''} onclick="getState('auditoria').page=${s.page-1};renderAuditoria()">‹</button>
+    <span>Página ${s.page} de ${pages} — ${total} log(s)</span>
+    <button ${s.page===pages?'disabled':''} onclick="getState('auditoria').page=${s.page+1};renderAuditoria()">›</button>
+  </div></div>`;
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Auditoria';
+}
+
+window.verLog = function(id){
+  const l = db.getAllWithDeleted(DB_KEYS.LOGS).find(x=>x.id===id);
+  if(!l) return;
+  Swal.fire({
+    title:'Detalhes do Log',
+    html:`<div style="text-align:left;font-size:12px;max-height:400px;overflow:auto">
+      <p><strong>Data:</strong> ${fmtDateTime(l.timestamp)}</p>
+      <p><strong>Usuário:</strong> ${esc(l.usuario_nome)}</p>
+      <p><strong>Ação:</strong> ${l.acao}</p>
+      <p><strong>Entidade:</strong> ${l.entidade} #${l.entidade_id}</p>
+      <p><strong>Antes:</strong></p>
+      <pre style="background:#f3f4f6;padding:8px;border-radius:4px;font-size:10px;overflow:auto">${esc(JSON.stringify(l.dados_antes,null,2))}</pre>
+      <p><strong>Depois:</strong></p>
+      <pre style="background:#f3f4f6;padding:8px;border-radius:4px;font-size:10px;overflow:auto">${esc(JSON.stringify(l.dados_depois,null,2))}</pre>
+    </div>`,
+    width:720, confirmButtonText:'Fechar'
+  });
+};
+
+/* ============================================================
+   19. VIEW: CONFIGURAÇÕES
+   ============================================================ */
+function renderConfig(){
+  const cfg = db.getConfig();
+  const u = auth.currentUser();
+  const isAdmin = u.perfil==='Administrador';
+  let html=`<div class="card">
+    <div class="card-title">Dados da Empresa</div>
+    <table><tbody>
+      <tr><td><strong>Razão Social:</strong></td><td>${esc(cfg.empresa.razao_social)}</td></tr>
+      <tr><td><strong>CNPJ:</strong></td><td>${esc(cfg.empresa.cnpj)}</td></tr>
+      <tr><td><strong>Endereço:</strong></td><td>${esc(cfg.empresa.endereco)}</td></tr>
+      <tr><td><strong>Regime:</strong></td><td>${esc(cfg.empresa.regime_tributario)}</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Parâmetros de Negócio</div>
+    <table><tbody>
+      <tr><td>Bloquear venda sem estoque:</td><td>${cfg.parametros.bloquear_venda_sem_estoque?'✅ Sim':'❌ Não'}</td></tr>
+      <tr><td>Desconto máximo permitido:</td><td>${cfg.parametros.desconto_maximo_percentual}%</td></tr>
+      <tr><td>Bloquear cliente inadimplente:</td><td>${cfg.parametros.bloquear_cliente_inadimplente?'✅ Sim':'❌ Não'}</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Alterar Senha</div>
+    <div class="toolbar">
+      <input type="password" id="pw-old" placeholder="Senha atual">
+      <input type="password" id="pw-new" placeholder="Nova senha">
+      <button class="btn btn-primary" onclick="alterarSenha()">Alterar</button>
+    </div>
+  </div>`;
+
+  if(isAdmin){
+    html+=`<div class="card">
+      <div class="card-title">Backup & Restore</div>
+      <div class="toolbar">
+        <button class="btn btn-success" onclick="exportJSON()">💾 Fazer Backup (.json)</button>
+        <label class="btn btn-primary" style="cursor:pointer">📂 Restaurar Backup<input type="file" accept=".json" style="display:none" onchange="restoreFile(event)"></label>
+        <button class="btn btn-danger" onclick="resetSystem()">🗑 Resetar Sistema</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Usuários do Sistema</div>
+      <table><thead><tr><th>Usuário</th><th>Nome</th><th>Perfil</th><th>Situação</th></tr></thead><tbody>
+      ${db.getAll(DB_KEYS.USUARIOS).map(us=>`<tr><td>${esc(us.usuario)}</td><td>${esc(us.nome)}</td><td>${us.perfil}</td><td>${us.situacao||'ativo'}</td></tr>`).join('')}
+      </tbody></table>
+    </div>`;
+  }
+
+  html+=`<div class="card" style="font-size:12px;color:#6b7280">
+    <p><strong>Sobre:</strong> ERP Didático Comercial Aurora Ltda. — versão 1.0</p>
+    <p>Dados armazenados localmente no navegador (localStorage). Uso exclusivamente educacional.</p>
+  </div>`;
+
+  $('#content').innerHTML=html;
+  $('#page-title').textContent='Configurações';
+}
+
+window.alterarSenha = async function(){
+  const old = $('#pw-old').value;
+  const nw = $('#pw-new').value;
+  if(!old||!nw){ toast('error','Preencha ambas as senhas'); return; }
+  if(nw.length<6){ toast('error','Nova senha deve ter ao menos 6 caracteres'); return; }
+  const u = auth.currentUser();
+  const hashOld = await auth.hash(old);
+  if(hashOld !== u.senha_hash){ toast('error','Senha atual incorreta'); return; }
+  const hashNew = await auth.hash(nw);
+  db.update(DB_KEYS.USUARIOS,u.id,{senha_hash:hashNew});
+  toast('success','Senha alterada');
+  $('#pw-old').value=''; $('#pw-new').value='';
+};
+
+window.restoreFile = function(ev){
+  const f = ev.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    confirmDanger('Restaurar backup?','Todos os dados atuais serão substituídos pelo backup.').then(r=>{
+      if(!r.isConfirmed) return;
+      try{
+        db.importAll(e.target.result);
+        toast('success','Backup restaurado — recarregando...');
+        setTimeout(()=>location.reload(),1200);
+      }catch(err){ toast('error',err.message); }
+    });
+  };
+  reader.readAsText(f);
+};
+
+window.resetSystem = function(){
+  Swal.fire({
+    title:'Resetar sistema?',
+    text:'Isso apagará TODOS os dados. Digite CONFIRMAR para prosseguir.',
+    input:'text', icon:'warning',
+    showCancelButton:true, confirmButtonColor:'#ef4444',
+    preConfirm:(v)=>{ if(v!=='CONFIRMAR'){ Swal.showValidationMessage('Digite CONFIRMAR'); return false; } return true; }
+  }).then(r=>{
+    if(!r.isConfirmed) return;
+    db.reset();
+    sessionStorage.clear();
+    toast('success','Sistema resetado');
+    setTimeout(()=>location.reload(),800);
+  });
+};
+
+/* ============================================================
+   20. ROUTER E BOOTSTRAP
+   ============================================================ */
+const ROUTES = {
+  dashboard: {title:'Dashboard', render:renderDashboard},
+  clientes: {title:'Clientes', render:renderClientes},
+  fornecedores:{title:'Fornecedores', render:renderFornecedores},
+  produtos:{title:'Produtos', render:renderProdutos},
+  categorias:{title:'Categorias', render:renderCategorias},
+  estoque:{title:'Estoque', render:renderEstoque},
+  vendas:{title:'Vendas', render:renderVendas},
+  compras:{title:'Compras', render:renderCompras},
+  'contas-receber':{title:'Contas a Receber', render:renderContasReceber},
+  'contas-pagar':{title:'Contas a Pagar', render:renderContasPagar},
+  'fluxo-caixa':{title:'Fluxo de Caixa', render:renderFluxoCaixa},
+  relatorios:{title:'Relatórios', render:renderRelatorios},
+  auditoria:{title:'Auditoria', render:renderAuditoria},
+  config:{title:'Configurações', render:renderConfig}
+};
+
+const NAV = [
+  {section:'Principal', items:[{route:'dashboard',label:'📊 Dashboard'}]},
+  {section:'Cadastros', items:[
+    {route:'clientes',label:'👥 Clientes'},
+    {route:'fornecedores',label:'🏢 Fornecedores'},
+    {route:'produtos',label:'📦 Produtos'},
+    {route:'categorias',label:'🏷️ Categorias'}
+  ]},
+  {section:'Operações', items:[
+    {route:'estoque',label:'📥 Estoque'},
+    {route:'vendas',label:'🛒 Vendas'},
+    {route:'compras',label:'📋 Compras'}
+  ]},
+  {section:'Financeiro', items:[
+    {route:'contas-receber',label:'💰 Contas a Receber'},
+    {route:'contas-pagar',label:'💸 Contas a Pagar'},
+    {route:'fluxo-caixa',label:'💵 Fluxo de Caixa'}
+  ]},
+  {section:'Gestão', items:[
+    {route:'relatorios',label:'📈 Relatórios'},
+    {route:'auditoria',label:'🔍 Auditoria'},
+    {route:'config',label:'⚙️ Configurações'}
+  ]}
+];
+
+let currentRoute = 'dashboard';
+
+function renderNav(){
+  const u = auth.currentUser();
+  if(!u) return;
+  let html='';
+  NAV.forEach(sec=>{
+    const items = sec.items.filter(it=>hasPerm(it.route));
+    if(!items.length) return;
+    html+=`<div class="nav-section">${sec.section}</div>`;
+    items.forEach(it=>{
+      html+=`<button class="nav-item ${it.route===currentRoute?'active':''}" data-route="${it.route}">${it.label}</button>`;
+    });
+  });
+  $('#nav').innerHTML = html;
+  $$('.nav-item').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.route)));
+}
+
+function navigate(route){
+  if(!hasPerm(route)){ toast('error','Acesso negado'); return; }
+  currentRoute = route;
+  $('#page-title').textContent = ROUTES[route]?.title || route;
+  $$('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.route===route));
+  try{
+    ROUTES[route].render();
+  }catch(e){
+    console.error(e);
+    $('#content').innerHTML = `<div class="card"><div class="empty">Erro ao renderizar: ${esc(e.message)}</div></div>`;
+  }
+}
+
+function showApp(){
+  const u = auth.currentUser();
+  if(!u) return;
+  $('#login-screen').style.display='none';
+  $('#app').style.display='flex';
+  $('#user-name').textContent = u.nome;
+  $('#user-perfil').textContent = u.perfil;
+  renderNav();
+  navigate('dashboard');
+}
+
+function showLogin(){
+  $('#login-screen').style.display='flex';
+  $('#app').style.display='none';
+}
+
+// Event listeners
+$('#login-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const u = $('#login-user').value.trim();
+  const p = $('#login-pass').value;
+  $('#login-error').textContent = '';
+  try{
+    const user = await auth.login(u,p);
+    if(!user){
+      $('#login-error').textContent = 'Usuário ou senha inválidos.';
+      return;
+    }
+    showApp();
+  }catch(err){
+    $('#login-error').textContent = 'Erro: '+err.message;
+  }
+});
+
+$('#btn-logout').addEventListener('click', ()=>{
+  confirmDanger('Sair do sistema?','').then(r=>{
+    if(!r.isConfirmed) return;
+    auth.logout();
+    showLogin();
+    $('#login-user').value='';
+    $('#login-pass').value='';
+  });
+});
+
+// Bootstrap
+(async function bootstrap(){
+  try{
+    await seed();
+  }catch(e){
+    console.error('Seed falhou:', e);
+  }
+  if(auth.currentUser()){
+    showApp();
+  } else {
+    showLogin();
+  }
+})();
+</script>
+</body>
+</html>
