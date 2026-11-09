@@ -132,13 +132,89 @@
 .btn-menu:hover{ background:var(--bg); }
 
 @media(max-width:768px){
+  /* Layout geral */
   .app{ flex-direction:column; }
-  .sidebar{
+  .sidebar{ width:100%; height:auto; position:relative; flex-direction:column; }
+  .nav{ display:none; width:100%; }
+  .nav.open{ display:block; }
+  .btn-menu{ display:inline-flex; }
+  .content{ padding:12px; overflow-x:hidden; }
+  .header{ padding:0 10px; gap:8px; }
+  .header > div:first-child{ min-width:0; flex:1; }
+  .user-area{ gap:6px; font-size:12px; flex-shrink:0; }
+  .page-title{ font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #user-name{ max-width:70px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .badge{ font-size:10px; padding:1px 6px; }
+  .btn-logout{ padding:4px 10px; font-size:11px; }
+
+  /* Cards */
+  .card{ padding:12px; border-radius:8px; margin-bottom:14px; }
+  .card-title{ font-size:14px; flex-wrap:wrap; gap:8px; align-items:center; }
+
+  /* ⭐ Tabelas com scroll horizontal */
+  .card > table,
+  .card > table *{ -webkit-overflow-scrolling:touch; }
+  .card > table{
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+    max-width:100%;
     width:100%;
-    height:auto;
-    position:relative;
-    flex-direction:column;   /* ← era row, agora column */
   }
+  .card > table th,
+  .card > table td{ padding:8px 6px; font-size:12px; }
+
+  /* Modais (SweetAlert) — tabelas internas também scrolláveis */
+  .modal-items{
+    display:block;
+    overflow-x:auto;
+    white-space:nowrap;
+    max-width:100%;
+    -webkit-overflow-scrolling:touch;
+  }
+  .modal-items th,
+  .modal-items td{ font-size:11px; padding:4px 6px; }
+  .modal-items input,
+  .modal-items select{ font-size:11px; padding:4px; min-width:0; }
+  .total-line{ flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+
+  /* Toolbar */
+  .toolbar{ gap:8px; }
+  .toolbar input[type="text"],
+  .toolbar input[type="date"],
+  .toolbar input[type="password"],
+  .toolbar select{
+    min-width:0 !important;
+    width:100% !important;
+    font-size:13px;
+  }
+  .toolbar .btn{ padding:6px 10px; font-size:12px; }
+
+  /* KPIs */
+  .kpi-grid{ grid-template-columns:repeat(2,1fr); gap:10px; }
+  .kpi{ padding:12px; }
+  .kpi-label{ font-size:10px; }
+  .kpi-value{ font-size:17px; }
+
+  /* Chart boxes */
+  .chart-grid{ grid-template-columns:1fr; }
+  .chart-box{ padding:12px; min-height:240px; }
+
+  /* Formulários */
+  .form-grid{ grid-template-columns:1fr; }
+  .btn{ padding:7px 12px; font-size:12px; }
+
+  /* Paginação */
+  .pagination{ font-size:11px; flex-wrap:wrap; justify-content:center; }
+}
+
+@media(max-width:480px){
+  .kpi-grid{ grid-template-columns:1fr; }
+  .card-title{ font-size:13px; }
+  .badge{ display:none; }
+  .card > table th,
+  .card > table td{ font-size:11px; padding:6px 5px; }
+}
   .nav{ display:none; width:100%; }
   .nav.open{ display:block; }
   .chart-grid{ grid-template-columns:1fr; }
